@@ -5,4 +5,10 @@ pub trait ReadExt: std::io::Read {
         buf.truncate(n);
         Ok(buf)
     }
+
+    fn read_exact_alloc(&mut self, n: usize) -> std::io::Result<Vec<u8>> {
+        let mut buf = Vec::with_capacity(n);
+        self.read_exact(&mut buf)?;
+        Ok(buf)
+    }
 }
