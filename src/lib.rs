@@ -1,5 +1,8 @@
+mod func;
 mod io;
 mod utils;
+
+pub use func::*;
 
 pub use io::ReadExt;
 impl<R: std::io::Read + ?Sized> ReadExt for R {}
