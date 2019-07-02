@@ -1,19 +1,19 @@
 #[macro_export]
 macro_rules! debug {
-    ($($arg:tt)*) => {{ eprint!("[debug] "); eprintln!(format_args!($($arg)*)) }};
+    ($($arg:tt)*) => {{ eprint!("[debug] "); eprintln!($($arg)*) }};
 }
 
 #[macro_export]
 macro_rules! info {
-    ($($arg:tt)*) => {{ eprint!("[info] "); eprintln!(format_args!($($arg)*)) }};
+    ($($arg:tt)*) => {{ eprint!("[info] "); eprintln!($($arg)*) }};
 }
 
 #[macro_export]
 macro_rules! warn {
-    ($($arg:tt)*) => {{ eprint!("[warn] "); eprintln!(format_args!($($arg)*)) }};
+    ($($arg:tt)*) => {{ eprint!("[warn] "); eprintln!($($arg)*) }};
 }
 
 #[macro_export]
 macro_rules! error {
-    ($($arg:tt)*) => {{ eprint!("[error] "); eprintln!(format_args!($($arg)*)) }};
+    ($($arg:tt)*) => {{ eprint!("[error] "); eprintln!($($arg)*) }};
 }
