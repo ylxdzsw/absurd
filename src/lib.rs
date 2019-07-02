@@ -1,5 +1,6 @@
 mod func;
 mod io;
+mod log;
 mod utils;
 
 pub use func::*;
@@ -12,3 +13,5 @@ impl<T> MonadExt for T {}
 
 pub use utils::SizedMonadExt;
 impl<T: Sized> SizedMonadExt for T {}
+
+pub use log::*;
