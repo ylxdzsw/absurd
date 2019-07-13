@@ -1,6 +1,12 @@
 #[macro_export]
 macro_rules! debug {
-    ($($arg:tt)*) => {{ eprint!("[debug] "); eprintln!($($arg)*) }};
+    ($($arg:tt)*) => {{
+        #[cfg(debug)]
+        {
+            eprint!("[debug] ");
+            eprintln!($($arg)*)
+        }
+    }};
 }
 
 #[macro_export]
