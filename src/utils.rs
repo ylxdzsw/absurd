@@ -15,3 +15,8 @@ pub trait SizedMonadExt: Sized {
         f(&mut self); self
     }
 }
+
+pub trait ResultExt {
+    type S;
+    fn msg<T>(self, x: T) -> Result<Self::S, T>;
+}
