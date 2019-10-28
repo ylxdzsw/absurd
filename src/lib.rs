@@ -1,7 +1,7 @@
 mod func;
 mod io;
-mod log;
 mod structs;
+mod terminal;
 mod utils;
 
 pub use func::*;
@@ -30,4 +30,4 @@ impl<X> ResultExt for Option<X> {
     }
 }
 
-pub use log::*;
+pub use terminal::*;
