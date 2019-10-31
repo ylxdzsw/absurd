@@ -1,10 +1,8 @@
-mod func;
 mod io;
 mod structs;
 mod terminal;
 mod utils;
 
-pub use func::*;
 pub use structs::*;
 
 pub use io::ReadExt;

@@ -1,5 +1,5 @@
 [package]
 name = "oh-my-rust"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["ylxdzsw <ylxdzsw@gmail.com>"]
 edition = "2018"
