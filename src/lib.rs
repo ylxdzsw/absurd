@@ -1,8 +1,10 @@
 mod io;
+mod mem;
 mod structs;
 mod terminal;
 mod utils;
 
+pub use mem::*;
 pub use structs::*;
 
 pub use io::ReadExt;
