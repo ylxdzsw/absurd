@@ -12,3 +12,8 @@ pub trait ResultExt {
     type S;
     fn msg<T>(self, x: T) -> Result<Self::S, T>;
 }
+
+pub trait UnwrapUnchecked {
+    type O;
+    unsafe fn unwrap_unchecked(self) -> Self::O;
+}

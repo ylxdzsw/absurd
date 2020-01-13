@@ -30,4 +30,18 @@ impl<X> ResultExt for Option<X> {
     }
 }
 
+pub use utils::UnwrapUnchecked;
+impl<T, E> UnwrapUnchecked for Result<T, E> {
+    type O = T;
+    unsafe fn unwrap_unchecked(self) -> T {
+        self.unwrap_or_else(|_| core::hint::unreachable_unchecked())
+    }
+}
+impl<T> UnwrapUnchecked for Option<T> {
+    type O = T;
+    unsafe fn unwrap_unchecked(self) -> T {
+        self.unwrap_or_else(|| core::hint::unreachable_unchecked())
+    }
+}
+
 pub use terminal::*;
