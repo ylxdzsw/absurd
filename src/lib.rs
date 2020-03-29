@@ -1,11 +1,13 @@
 mod io;
 mod mem;
 mod structs;
+mod syntax;
 mod terminal;
 mod utils;
 
 pub use mem::*;
 pub use structs::*;
+pub use syntax::*;
 
 pub use io::ReadExt;
 impl<R: std::io::Read + ?Sized> ReadExt for R {}
