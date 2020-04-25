@@ -9,12 +9,11 @@ macro_rules! cfor {
         $($init;)+
         loop {
             if _steped {
-                if $cond {
-                    _steped = false;
-                    $body
-                } else {
+                if !$cond {
                     break
                 }
+                _steped = false;
+                $body
             }
 
             _steped = true;
