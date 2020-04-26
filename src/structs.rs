@@ -38,3 +38,16 @@ impl<T> AsMut<T> for RAII<T> {
         self
     }
 }
+
+/// a pointer that is not a pointer. It is in places where a owned `Deref` is wanted yet we do not want heap allocation of `Box`.
+#[derive(Clone, Debug)]
+pub struct StackBox<T>(T);
+
+impl<T> std::ops::Deref for StackBox<T> {
+    type Target = T;
+    fn deref(&self) -> &Self::Target { &self.0 }
+}
+
+impl<T> std::ops::DerefMut for StackBox<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.0 }
+}
