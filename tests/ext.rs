@@ -44,6 +44,20 @@ mod uninit {
         a.set_len_uninit_primitive(4);
         a[1] = a[3];
     }
+
+    #[test]
+    fn new_uninitialized_vec() {
+        let mut a = alloc::vec::Vec::<u8>::new_uninitialized(4);
+        a[1] = a[3];
+        assert_eq!(a.len(), 4);
+    }
+
+    #[test]
+    fn new_uninitialized_boxed_slice() {
+        let mut a = alloc::boxed::Box::<[u8]>::new_uninit_slice_primitive(4);
+        a[1] = a[3];
+        assert_eq!(a.len(), 4);
+    }
 }
 
 mod pointer {
