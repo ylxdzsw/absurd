@@ -1,8 +1,6 @@
 #![allow(clippy::missing_safety_doc)]
-#![no_std]
 
-#[cfg(feature="std")]
-extern crate std;
+#![cfg_attr(not(feature="std"), no_std, allow(unused_imports))]
 
 #[cfg(feature="alloc")]
 extern crate alloc;
@@ -23,33 +21,11 @@ pub mod ext {
 
 pub use ext::*;
 
+pub mod raii;
+pub use raii::*;
 
-// mod structs;
-// mod syntax;
-// mod sys;
-// mod terminal;
-// mod utils;
+pub mod cfor;
+pub use cfor::*;
 
-// pub use structs::*;
-// pub use syntax::*;
-// pub use sys::*;
-
-// pub trait UnwrapUnchecked {
-//     type O;
-//     unsafe fn unwrap_unchecked(self) -> Self::O;
-// }
-// pub use utils::UnwrapUnchecked;
-// impl<T, E> UnwrapUnchecked for Result<T, E> {
-//     type O = T;
-//     unsafe fn unwrap_unchecked(self) -> T {
-//         self.unwrap_or_else(|_| core::hint::unreachable_unchecked())
-//     }
-// }
-// impl<T> UnwrapUnchecked for Option<T> {
-//     type O = T;
-//     unsafe fn unwrap_unchecked(self) -> T {
-//         self.unwrap_or_else(|| core::hint::unreachable_unchecked())
-//     }
-// }
-
-// pub use terminal::*;
+pub mod log;
+pub use log::*;

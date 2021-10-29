@@ -12,4 +12,6 @@ jobs:
           toolchain: nightly
           target: x86_64-unknown-linux-gnu
           default: true
+      - run: cargo test --no-default-features
+      - run: cargo test --no-default-features --features alloc
       - run: cargo test

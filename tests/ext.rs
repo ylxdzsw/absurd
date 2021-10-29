@@ -1,5 +1,11 @@
+#![cfg_attr(not(feature="std"), no_std, allow(unused_imports))]
+
+#[cfg(feature="alloc")]
+extern crate alloc;
+
 use oh_my_rust::ext::*;
 
+#[cfg(feature="std")]
 mod io {
     use super::*;
 
@@ -28,24 +34,25 @@ mod io {
     }
 }
 
+#[cfg(feature="alloc")]
 mod uninit {
     use super::*;
 
     #[test]
     fn set_len_uninit_primitive() {
-        let mut a = vec![1, 2, 3];
+        let mut a = alloc::vec![1, 2, 3];
         a.set_len_uninit_primitive(4);
-        println!("{:?}", a);
+        a[1] = a[3];
     }
 }
 
 mod pointer {
-    use std::{cell::Cell, rc::Rc};
-
     use super::*;
 
     #[test]
+    #[cfg(feature="std")]
     fn leak_and_reclaim() {
+        use std::{cell::Cell, rc::Rc};
         let x = Rc::new(Cell::new(3));
         
         struct A(Rc<Cell<u8>>);
