@@ -1,9 +1,10 @@
+#![allow(clippy::missing_safety_doc)]
 #![no_std]
 
-#[cfg(feature = "std")]
+#[cfg(feature="std")]
 extern crate std;
 
-#[cfg(feature = "alloc")]
+#[cfg(feature="alloc")]
 extern crate alloc;
 
 pub mod ext {
@@ -12,54 +13,31 @@ pub mod ext {
 
     pub mod uninit;
     pub use uninit::*;
+
+    pub mod pointer;
+    pub use pointer::*;
+
+    pub mod other;
+    pub use other::*;
 }
 
 pub use ext::*;
 
 
-// mod mem;
 // mod structs;
 // mod syntax;
 // mod sys;
 // mod terminal;
 // mod utils;
 
-// pub use mem::*;
 // pub use structs::*;
 // pub use syntax::*;
 // pub use sys::*;
 
-
-// pub use utils::MonadExt;
-// impl<T> MonadExt for T {}
-
-// pub use utils::SizedMonadExt;
-// impl<T: Sized> SizedMonadExt for T {}
-
-// pub use utils::ResultExt;
-// impl<X, F> ResultExt for Result<X, F> {
-//     type S = X;
-//     fn msg<T>(self, x: T) -> Result<X, T> {
-//         self.map_err(|_| x)
-//     }
+// pub trait UnwrapUnchecked {
+//     type O;
+//     unsafe fn unwrap_unchecked(self) -> Self::O;
 // }
-// impl<X> ResultExt for Option<X> {
-//     type S = X;
-//     fn msg<T>(self, x: T) -> Result<X, T> {
-//         self.ok_or(x)
-//     }
-// }
-
-// pub use utils::PrintableResultExt;
-// impl<T, E: std::fmt::Debug> PrintableResultExt for Result<T, E> {
-//     fn warn(self) -> Self {
-//         if let Err(e) = &self {
-//             warn!("{:?}", e)
-//         }
-//         self
-//     }
-// }
-
 // pub use utils::UnwrapUnchecked;
 // impl<T, E> UnwrapUnchecked for Result<T, E> {
 //     type O = T;
