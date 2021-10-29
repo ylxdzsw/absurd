@@ -2,4 +2,9 @@
 name = "oh-my-rust"
 version = "0.5.0"
 authors = ["ylxdzsw <ylxdzsw@gmail.com>"]
-edition = "2018"
+edition = "2021"
+
+[features]
+default = ["std"]
+std = ["alloc"]
+alloc = []
