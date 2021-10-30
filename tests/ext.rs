@@ -76,7 +76,7 @@ mod pointer {
             }
         }
 
-        let a = A(x.clone()).box_and_into_raw();
+        let a: *mut A = A(x.clone()).box_and_leak();
         assert_eq!(x.get(), 3);
         unsafe { a.reclaim_box() };
         assert_eq!(x.get(), 4)
