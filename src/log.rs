@@ -2,7 +2,7 @@
 
 #[macro_export]
 macro_rules! debug {
-    ($($arg:tt)*) => {#[cfg(debug_assertions)]{ eprint!(":: "); eprintln!($($arg)*) }};
+    ($($arg:tt)*) => {{#[cfg(debug_assertions)]{ eprint!(":: "); eprintln!($($arg)*) }}};
 }
 
 #[macro_export]
