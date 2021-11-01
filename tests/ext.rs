@@ -3,7 +3,7 @@
 #[cfg(feature="alloc")]
 extern crate alloc;
 
-use oh_my_rust::ext::*;
+use oh_my_rust::*;
 
 #[cfg(feature="std")]
 mod io {

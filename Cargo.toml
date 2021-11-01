@@ -1,6 +1,6 @@
 [package]
 name = "oh-my-rust"
-version = "0.7.1"
+version = "0.7.2"
 authors = ["ylxdzsw <ylxdzsw@gmail.com>"]
 edition = "2021"
 

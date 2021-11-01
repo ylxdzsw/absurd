@@ -6,27 +6,27 @@
 #[cfg(feature="alloc")]
 extern crate alloc;
 
-pub mod ext {
-    pub mod io;
+mod ext {
+    mod io;
     pub use io::*;
 
-    pub mod uninit;
+    mod uninit;
     pub use uninit::*;
 
-    pub mod pointer;
+    mod pointer;
     pub use pointer::*;
 
-    pub mod other;
+    mod other;
     pub use other::*;
 }
 
 pub use ext::*;
 
-pub mod raii;
+mod raii;
 pub use raii::*;
 
-pub mod cfor;
+mod cfor;
 pub use cfor::*;
 
-pub mod log;
+mod log;
 pub use log::*;
