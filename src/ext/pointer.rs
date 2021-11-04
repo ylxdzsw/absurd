@@ -25,7 +25,7 @@ impl<T> PointerExt for *mut T {
 }
 
 #[cfg(feature = "alloc")]
-trait ExtForBoxed {
+pub trait ExtForBoxed {
     fn boxed(self) -> alloc::boxed::Box<Self>;
 }
 
