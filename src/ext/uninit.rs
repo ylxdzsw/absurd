@@ -3,7 +3,7 @@ use super::*;
 pub trait FullBitPrimitive {}
 
 // note: bool is not full bit. not sure about floats and atomics (especially with fast math etc.)
-// note2: reading the unintialized data is still dangerous. For example the system will not mark the page as dirty if it is only read, so the content may change next time even without writing to it.
+// note: reading the unintialized data is still dangerous. For example the system will not mark the page as dirty if it is only read, so the content may change next time even without writing to it.
 
 #[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64"))]
 impl FullBitPrimitive for u8 {}
