@@ -13,5 +13,8 @@ jobs:
           target: x86_64-unknown-linux-gnu
           default: true
       - run: cargo test --no-default-features
-      - run: cargo test --no-default-features --features alloc
+      - run: cargo test --no-default-features -F unstable
+      - run: cargo test --no-default-features -F alloc
+      - run: cargo test --no-default-features -F alloc,unstable
+      - run: cargo test --no-default-features -F std
       - run: cargo test

@@ -64,8 +64,8 @@ pub trait BoxExtForFullBitPrimitives {
 }
 
 #[cfg(all(feature="alloc", feature="unstable"))]
-impl<T: FullBitPrimitive> BoxExtForFullBitPrimitives for Box<[T]> {
+impl<T: FullBitPrimitive> BoxExtForFullBitPrimitives for alloc::boxed::Box<[T]> {
     fn new_uninit_slice_primitive(len: usize) -> Self {
-        unsafe { Box::new_uninit_slice(len).assume_init() }
+        unsafe { alloc::boxed::Box::new_uninit_slice(len).assume_init() }
     }
 }

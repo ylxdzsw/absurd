@@ -53,6 +53,7 @@ mod uninit {
     }
 
     #[test]
+    #[cfg(feature="unstable")]
     fn new_uninitialized_boxed_slice() {
         let mut a = alloc::boxed::Box::<[u8]>::new_uninit_slice_primitive(4);
         a[1] = a[3];
@@ -68,7 +69,7 @@ mod pointer {
     fn leak_and_reclaim() {
         use std::{cell::Cell, rc::Rc};
         let x = Rc::new(Cell::new(3));
-        
+
         struct A(Rc<Cell<u8>>);
         impl Drop for A {
             fn drop(&mut self) {

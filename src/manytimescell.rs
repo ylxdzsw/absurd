@@ -2,7 +2,7 @@ use core::ops::DerefMut;
 use core::sync::atomic::AtomicU8;
 use core::sync::atomic::Ordering;
 use core::cell::UnsafeCell;
-// use std::cell::SyncUnsafeCell;
+// use core::cell::SyncUnsafeCell;
 
 #[derive(Debug)]
 pub struct ManyTimesCell<T> {
@@ -52,7 +52,7 @@ impl<'a, T> Drop for BorrowGuard<'a, T> {
     }
 }
 
-impl<'a, T> std::ops::Deref for BorrowGuard<'a, T> {
+impl<'a, T> core::ops::Deref for BorrowGuard<'a, T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
@@ -60,7 +60,7 @@ impl<'a, T> std::ops::Deref for BorrowGuard<'a, T> {
     }
 }
 
-impl<'a, T> std::ops::DerefMut for BorrowGuard<'a, T> {
+impl<'a, T> core::ops::DerefMut for BorrowGuard<'a, T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         unsafe { &mut *self.cell.value.get() }
     }

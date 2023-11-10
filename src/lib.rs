@@ -1,7 +1,7 @@
 #![allow(clippy::missing_safety_doc)]
 
 #![cfg_attr(not(feature="std"), no_std, allow(unused_imports))]
-#![cfg_attr(feature="unstable", feature(new_uninit))]
+#![cfg_attr(all(feature="alloc", feature="unstable"), feature(new_uninit))]
 
 #[cfg(feature="alloc")]
 extern crate alloc;
