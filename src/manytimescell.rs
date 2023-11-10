@@ -1,8 +1,7 @@
 use core::ops::DerefMut;
-use std::sync::atomic::AtomicU8;
-use std::sync::atomic::Ordering;
-use std::cell::UnsafeCell;
-
+use core::sync::atomic::AtomicU8;
+use core::sync::atomic::Ordering;
+use core::cell::UnsafeCell;
 // use std::cell::SyncUnsafeCell;
 
 #[derive(Debug)]
@@ -28,7 +27,7 @@ impl<T> ManyTimesCell<T> {
         }
     }
 
-    pub fn get_mut(&self) -> impl DerefMut<Target=T> + Drop + '_  {
+    pub fn get_mut(&self) -> impl DerefMut<Target=T> + '_ {
         match self.state.compare_exchange(UN_BORROWED, MUT_BORROWED, Ordering::AcqRel, Ordering::Acquire) {
             Ok(_) => return BorrowGuard { cell: self },
             Err(_) => panic!("Attempting to borrow a ManyTimesCell mutably when it is already borrowed or frozen"),
