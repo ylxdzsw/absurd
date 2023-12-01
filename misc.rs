@@ -12,3 +12,19 @@ pub trait SizedExtForApply: Sized {
 }
 
 impl<T: Sized> SizedExtForApply for T {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ignore() {
+        let _ = ().ignore();
+    }
+
+    #[test]
+    fn apply() {
+        let x = 4.apply(|x| *x += 1);
+        assert_eq!(x, 5)
+    }
+}
