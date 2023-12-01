@@ -21,6 +21,9 @@ pub use ptrext::*;
 mod raii;
 pub use raii::*;
 
+mod ticker;
+pub use ticker::*;
+
 mod uninit;
 pub use uninit::*;
 
