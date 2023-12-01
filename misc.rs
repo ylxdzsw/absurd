@@ -3,7 +3,7 @@ pub trait ExtForIgnore {
     fn ignore(&self) {}
 }
 
-impl<T> ExtForIgnore for T {}
+impl<T: ?Sized> ExtForIgnore for T {}
 
 pub trait SizedExtForApply: Sized {
     fn apply(mut self, f: impl FnOnce(&mut Self)) -> Self {
@@ -11,7 +11,7 @@ pub trait SizedExtForApply: Sized {
     }
 }
 
-impl<T: Sized> SizedExtForApply for T {}
+impl<T> SizedExtForApply for T {}
 
 #[cfg(test)]
 mod tests {

@@ -1,8 +1,8 @@
 use core::mem::ManuallyDrop;
 
-/// a simple smart pointer that have a custom destructure callback attached. T can be () for just making the callback.
+/// a simple smart cell that have a custom destructure callback attached. T can be () for just making the callback.
 #[derive(Debug)]
-pub struct RAII<T, F: FnOnce(T)>(ManuallyDrop<T>, ManuallyDrop<F>); // F may be large, which is not ideal for a smart pointer. Put it in a box?
+pub struct RAII<T, F: FnOnce(T)>(ManuallyDrop<T>, ManuallyDrop<F>);
 
 impl<T, F: FnOnce(T)> RAII<T, F> {
     pub fn new(x: T, callback: F) -> Self {
@@ -42,10 +42,12 @@ mod tests {
         let x = atomic::AtomicI32::new(3);
 
         {
-            let _y = RAII::new(1, |y| x.fetch_add(y, atomic::Ordering::Relaxed).ignore());
+            let mut y = RAII::new(1, |y| x.fetch_add(y, atomic::Ordering::Relaxed).ignore());
+            assert_eq!(*y, 1);
+            *y += 1;
             assert_eq!(x.load(atomic::Ordering::Relaxed), 3);
         }
 
-        assert_eq!(x.load(atomic::Ordering::Relaxed), 4);
+        assert_eq!(x.load(atomic::Ordering::Relaxed), 5);
     }
 }
