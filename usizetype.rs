@@ -1,6 +1,6 @@
 #[macro_export]
 macro_rules! new_usize_type {
-    ($visibility: vis, $type_name: ident) => {
+    ($visibility: vis $type_name: ident) => {
         #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
         #[repr(transparent)]
         $visibility struct $type_name(pub usize);
@@ -41,7 +41,7 @@ macro_rules! new_usize_type {
 
 #[cfg(test)]
 mod tests {
-    new_usize_type!(pub, Test);
+    new_usize_type!(Test);
 
     #[test]
     fn test_usize_type() {
