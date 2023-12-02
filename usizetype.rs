@@ -42,6 +42,7 @@ macro_rules! new_usize_type {
 #[cfg(test)]
 mod tests {
     new_usize_type!(Test);
+    new_usize_type!(pub(crate) TestVisibility);
 
     #[test]
     fn test_usize_type() {
