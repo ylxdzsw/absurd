@@ -21,6 +21,9 @@ pub use ptrext::*;
 mod raii;
 pub use raii::*;
 
+mod search;
+pub use search::*;
+
 mod ticker;
 pub use ticker::*;
 
