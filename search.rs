@@ -30,7 +30,7 @@ impl<T: Eq + Hash + Clone> Map<T> for HashMap<T, (T, f64)> {
     }
 
     fn insert_if_better(&mut self, item: T, parent: (T, f64)) -> bool {
-        if self.get(&item).map(|(_, cost)| cost < &parent.1).unwrap_or_default() { // exist and better than the new one
+        if self.get(&item).map(|(_, cost)| cost <= &parent.1).unwrap_or_default() { // exist and better than the new one
             return false;
         }
         self.insert(item, parent);
@@ -45,7 +45,7 @@ impl<T: Eq + Ord + Clone> Map<T> for BTreeMap<T, (T, f64)> {
     }
 
     fn insert_if_better(&mut self, item: T, parent: (T, f64)) -> bool {
-        if self.get(&item).map(|(_, cost)| cost < &parent.1).unwrap_or_default() { // exist and better than the new one
+        if self.get(&item).map(|(_, cost)| cost <= &parent.1).unwrap_or_default() { // exist and better than the new one
             return false;
         }
         self.insert(item, parent);
@@ -60,7 +60,7 @@ pub struct ShortestPath<Node, F, H, C> where
     C: Map<Rc<Node>>
 {
     eval_node: F,
-    heuristic: Option<H>,
+    heuristic: H,
     phantom: PhantomData<(Node, C)>,
 }
 
@@ -71,22 +71,7 @@ impl<Node, F> ShortestPath<Node, F, fn(&Node) -> f64, DummyMap> where
     pub fn new(eval_node: F) -> Self {
         ShortestPath {
             eval_node,
-            heuristic: None,
-            phantom: PhantomData,
-        }
-    }
-}
-
-#[cfg(feature = "std")]
-impl<Node, F, C> ShortestPath<Node, F, fn(&Node) -> f64, C> where
-    F: Fn(&Node) -> Option<Vec<(Node, f64)>>,
-    C: Map<Rc<Node>>
-{
-    /// With heuristic it uses the A* algorithm. The heuristic must be admissible and consistent.
-    pub fn with_heuristic<H: Fn(&Node) -> f64>(self, heuristic: H) -> ShortestPath<Node, F, H, C> {
-        ShortestPath {
-            eval_node: self.eval_node,
-            heuristic: Some(heuristic),
+            heuristic: |_| 0.0,
             phantom: PhantomData,
         }
     }
@@ -128,6 +113,14 @@ impl<Node, F, H, C> ShortestPath<Node, F, H, C> where
     H: Fn(&Node) -> f64,
     C: Map<Rc<Node>>
 {
+    pub fn use_heuristic<H2: Fn(&Node) -> f64>(self, heuristic: H2) -> ShortestPath<Node, F, H2, C> {
+        ShortestPath {
+            eval_node: self.eval_node,
+            heuristic,
+            phantom: PhantomData,
+        }
+    }
+
     fn _solve(&self, init_nodes: impl IntoIterator<Item=Node>) -> Option<(Vec<Rc<Node>>, f64)> {
         struct HeapElement<Node>(Rc<Node>, (Rc<Node>, f64), f64);
 
@@ -156,7 +149,7 @@ impl<Node, F, H, C> ShortestPath<Node, F, H, C> where
 
         for node in init_nodes {
             let node = Rc::new(node);
-            let ecost = self.heuristic.as_ref().map(|h| h(&node.clone())).unwrap_or(0.0);
+            let ecost = (self.heuristic)(&node);
             frontier.push(HeapElement(node.clone(), (node.clone(), 0.0), ecost));
         }
 
@@ -168,8 +161,11 @@ impl<Node, F, H, C> ShortestPath<Node, F, H, C> where
 
             if let Some(children) = (self.eval_node)(&node) {
                 for (child, cost) in children {
+                    if cost > 1. {
+                        eprint!("{} {}", total_cost, cost)
+                    }
                     let child_cost = total_cost + cost;
-                    let ecost = child_cost + self.heuristic.as_ref().map(|h| h(&child)).unwrap_or(0.0);
+                    let ecost = child_cost + (self.heuristic)(&node);
                     frontier.push(HeapElement(Rc::new(child), (node.clone(), child_cost), ecost));
                 }
             } else {
@@ -255,40 +251,28 @@ mod tests {
     #[cfg(feature = "std")]
     #[test]
     fn test_shortest_path() {
-        let target_string = b"ATTCGTG";
+        let target_string = b"ATTCGTGATTCGTGATTCGTG";
         let input_string = b"GTACAGT";
 
-        let problem = |state: &(Vec<u8>, usize)| {
-            let (current_string, current_index) = state;
+        let problem = |state: &(usize, usize)| {
+            let &(i, j) = state;
 
-            if *current_index >= target_string.len() {
-                if current_string.len() == 0 {
-                    return None;
-                }
-                return Some(vec![
-                    // delete all
-                    ((vec![], *current_index), current_string.len() as f64)
-                ]);
+            if (i, j) == (target_string.len(), input_string.len()) {
+                return None
             }
 
-            if current_string.len() == 0 {
-                return Some(vec![
-                    // insert all
-                    ((vec![], target_string.len()), (target_string.len() - *current_index) as f64)
-                ]);
+            if (i == target_string.len()) != (j == input_string.len()) {
+                return Some(vec![((target_string.len(), input_string.len()), (target_string.len() + input_string.len() - i - j) as f64)])
             }
 
-            let mut children = vec![];
+            let mut children = Vec::with_capacity(3);
 
-            if current_string[0] == target_string[*current_index] {
-                children.push(((current_string[1..].to_owned(), *current_index + 1), 0.0));
+            if target_string[i] == input_string[j] {
+                children.push(((i + 1, j + 1), 0.0)) // match
             } else {
-                children.push(((current_string.clone(), *current_index + 1), 1.0)); // insertion
-
-                if current_string.len() >= 1 {
-                    children.push(((current_string[1..].to_owned(), *current_index), 1.0)); // deletion
-                    children.push(((current_string[1..].to_owned(), *current_index + 1), 1.0)); // replacement
-                }
+                children.push(((i, j + 1), 1.0)); // insertion
+                children.push(((i + 1, j), 1.0)); // deletion
+                children.push(((i + 1, j + 1), 1.0)); // replacement
             }
 
             Some(children)
@@ -296,13 +280,13 @@ mod tests {
 
         let edit_distance_1 = ShortestPath::new(problem)
             .use_hash_set()
-            .solve(vec![(input_string.to_vec(), 0)]).unwrap();
+            .solve(vec![(0, 0)]).unwrap();
         eprintln!("Edit distance 1: {:?}", edit_distance_1);
 
         let edit_distance_2 = ShortestPath::new(problem)
-            .with_heuristic(|(current_string, current_index)| (target_string.len() as f64 - *current_index as f64 - current_string.len() as f64).abs())
+            .use_heuristic(|&(i, j)| i.abs_diff(j) as f64)
             .use_btree_set()
-            .solve(vec![(input_string.to_vec(), 0)]).unwrap();
+            .solve(vec![(0, 0)]).unwrap();
         eprintln!("Edit distance 2: {:?}", edit_distance_2);
 
         assert_eq!(edit_distance_1.1, edit_distance_2.1);
