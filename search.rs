@@ -1,8 +1,9 @@
-use core::{marker::PhantomData, hash::Hash, ops::Sub};
+use core::{marker::PhantomData, hash::Hash};
 #[cfg(feature = "std")]
 use std::collections::{BinaryHeap, HashMap, BTreeMap};
 #[cfg(feature = "std")]
 use std::rc::Rc;
+use crate::Real;
 
 /// The key is T and the value is (T, total_cost).
 pub trait Map<T: Clone>: Default {
@@ -195,45 +196,17 @@ impl<Node, F, H, C> ShortestPath<Node, F, H, C> where
     }
 }
 
-pub trait Bisectable: Copy + Sub<Output=Self> + PartialOrd {
-    fn bisect(&self, item: &Self) -> Self;
-}
-
-impl Bisectable for usize {
-    fn bisect(&self, item: &Self) -> Self {
-        (*self + *item) / 2
-    }
-}
-
-impl Bisectable for isize {
-    fn bisect(&self, item: &Self) -> Self {
-        (*self + *item) / 2
-    }
-}
-
-impl Bisectable for f32 {
-    fn bisect(&self, item: &Self) -> Self {
-        (*self + *item) / 2.0
-    }
-}
-
-impl Bisectable for f64 {
-    fn bisect(&self, item: &Self) -> Self {
-        (*self + *item) / 2.0
-    }
-}
-
 /// returns a tightened range (l, r) such that f(l) == false && f(r) == true && r - l <= target_range
 /// example: `binary_search((0.0, 100.0), 1e-6, |x| x * x * x + x > 5.0)` returns (1.51598, 1.51599)
 pub fn binary_search<T, F>(support: (T, T), target_range: T, f: F) -> (T, T) where
-    T: Bisectable,
+    T: Copy + Real,
     F: Fn(&T) -> bool
 {
     let (mut l, mut r) = support;
-    debug_assert!(!f(&l) && f(&r));
+    debug_assert!(!f(&l) && f(&r) && r > l && target_range > T::zero());
 
     while r - l > target_range {
-        let m = l.bisect(&r);
+        let m = (l + r) / (T::one() + T::one());
         if f(&m) {
             r = m;
         } else {

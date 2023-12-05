@@ -1,48 +1,14 @@
 use super::*;
 
-pub trait FullBitPrimitive {}
-
-// note: bool is not full bit. not sure about floats and atomics (especially with fast math etc.)
 // note: reading the unintialized data is still dangerous. For example the system will not mark the page as dirty if it is only read, so the content may change next time even without writing to it.
 
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
-impl FullBitPrimitive for u8 {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
-impl FullBitPrimitive for i8 {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
-impl FullBitPrimitive for u16 {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
-impl FullBitPrimitive for i16 {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
-impl FullBitPrimitive for u32 {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
-impl FullBitPrimitive for i32 {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
-impl FullBitPrimitive for u64 {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
-impl FullBitPrimitive for i64 {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
-impl FullBitPrimitive for usize {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
-impl FullBitPrimitive for isize {}
-
-#[cfg(feature="std")]
-pub trait VecExtForFullBitPrimitives {
+pub trait VecExtForPrimitives {
     /// Safe `set_len` for vectors of full bit primitives (u8, i32, etc. Not include bool and floats)
     fn set_len_uninit_primitive(&mut self, new_len: usize);
 }
 
 #[cfg(feature="std")]
-impl<T: FullBitPrimitive> VecExtForFullBitPrimitives for Vec<T> {
+impl<T: FullBitPrimitive> VecExtForPrimitives for Vec<T> {
     #[allow(clippy::uninit_vec)]
     fn set_len_uninit_primitive(&mut self, new_len: usize) {
         self.reserve(new_len.saturating_sub(self.len()));
@@ -50,7 +16,6 @@ impl<T: FullBitPrimitive> VecExtForFullBitPrimitives for Vec<T> {
     }
 }
 
-#[cfg(feature="std")]
 pub trait NewUninitPrimitive {
     fn new_uninit_primitive(len: usize) -> Self;
 }
@@ -70,13 +35,12 @@ impl<T: FullBitPrimitive> NewUninitPrimitive for Box<[T]> {
     }
 }
 
-#[cfg(feature="std")]
 pub fn new_uninit_primitive<T: NewUninitPrimitive>(len: usize) -> T {
     T::new_uninit_primitive(len)
 }
 
-#[cfg(test)]
 #[cfg(feature="std")]
+#[cfg(test)]
 mod tests {
     use super::*;
 

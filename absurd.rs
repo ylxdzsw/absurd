@@ -15,6 +15,9 @@ pub use manytimescell::*;
 mod misc;
 pub use misc::*;
 
+mod numtraits;
+pub use numtraits::*;
+
 mod ptrext;
 pub use ptrext::*;
 
