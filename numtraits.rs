@@ -1,4 +1,5 @@
-use core::ops::{Add, Sub, Mul, Div, Neg, Rem};
+use core::ops::{Add, Sub, Mul, Div, Rem};
+use core::fmt::Debug;
 
 pub trait FullBitPrimitive {}
 
@@ -68,6 +69,7 @@ impl Zero for f64 { fn zero() -> Self { 0.0 } }
 
 pub trait Real:
     Sized +
+    Debug +
     One +
     Zero +
     Add<Output=Self> +
