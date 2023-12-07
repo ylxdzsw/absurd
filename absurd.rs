@@ -1,5 +1,3 @@
-#![allow(clippy::missing_safety_doc)]
-
 #![cfg_attr(not(feature="std"), no_std, allow(unused_imports))]
 
 mod cfor;
@@ -23,6 +21,9 @@ pub use ptrext::*;
 
 mod raii;
 pub use raii::*;
+
+mod rand;
+pub use rand::*;
 
 mod search;
 pub use search::*;

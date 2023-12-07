@@ -140,13 +140,13 @@ impl<Node, F, H, C, S> ShortestPath<Node, F, H, C, S> where
 
         impl<Node, S: Real + Clone> PartialOrd for HeapElement<Node, S> {
             fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-                self.2.partial_cmp(&other.2).map(|x| x.reverse()) // reverse to make it a min heap
+                Some(self.cmp(other))
             }
         }
 
         impl<Node, S: Real + Clone> Ord for HeapElement<Node, S> {
             fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-                self.partial_cmp(other).unwrap()
+                self.2.partial_cmp(&other.2).map(|x| x.reverse()).unwrap() // reverse to make it a min heap
             }
         }
 
@@ -174,8 +174,8 @@ impl<Node, F, H, C, S> ShortestPath<Node, F, H, C, S> where
             } else {
                 let mut path = vec![node.clone()];
                 let mut current = &node;
-                while let Some((parent, _)) = came_from.get(&current) {
-                    if Rc::ptr_eq(&parent, &current) {
+                while let Some((parent, _)) = came_from.get(current) {
+                    if Rc::ptr_eq(parent, current) {
                         break
                     }
                     path.push(parent.clone());

@@ -29,14 +29,14 @@ impl<T> ManyTimesCell<T> {
 
     pub fn get_mut(&self) -> impl DerefMut<Target=T> + '_ {
         match self.state.compare_exchange(UN_BORROWED, MUT_BORROWED, Ordering::AcqRel, Ordering::Acquire) {
-            Ok(_) => return BorrowGuard { cell: self },
+            Ok(_) => BorrowGuard { cell: self },
             Err(_) => panic!("Attempting to borrow a ManyTimesCell mutably when it is already borrowed or frozen"),
         }
     }
 
     pub fn get(&self) -> &T {
         match self.state.compare_exchange(UN_BORROWED, IMM_BORROWED, Ordering::AcqRel, Ordering::Acquire) {
-            Ok(_) | Err(IMM_BORROWED) => unsafe { return &*self.value.get() },
+            Ok(_) | Err(IMM_BORROWED) => unsafe { &*self.value.get() },
             Err(_) => panic!("Attempting to borrow a ManyTimesCell immutably when it is being borrowed mutably"),
         }
     }

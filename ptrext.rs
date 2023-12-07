@@ -14,7 +14,6 @@ impl<T> SizedExtForLeak for T {}
 #[cfg(feature = "std")]
 pub trait PtrExtForReclaimBox {
     type T;
-    /// rebuild a Box from raw pointers
     unsafe fn reclaim_box(self) -> Box<Self::T>;
 }
 
