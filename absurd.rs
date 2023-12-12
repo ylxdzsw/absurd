@@ -1,5 +1,8 @@
 #![cfg_attr(not(feature="std"), no_std, allow(unused_imports))]
 
+mod atomic;
+pub use atomic::*;
+
 mod cfor;
 
 mod ioext;

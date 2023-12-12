@@ -2,35 +2,15 @@ use core::ops::{Add, Sub, Mul, Div, Rem};
 use core::fmt::Debug;
 
 pub trait FullBitPrimitive {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
 impl FullBitPrimitive for u8 {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
 impl FullBitPrimitive for i8 {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
 impl FullBitPrimitive for u16 {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
 impl FullBitPrimitive for i16 {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
 impl FullBitPrimitive for u32 {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
 impl FullBitPrimitive for i32 {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
 impl FullBitPrimitive for u64 {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
 impl FullBitPrimitive for i64 {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
 impl FullBitPrimitive for usize {}
-
-#[cfg(any(target_arch="x86", target_arch="x86_64", target_arch="arm", target_arch="aarch64", target_arch="wasm32"))]
 impl FullBitPrimitive for isize {}
 
 pub trait One { fn one() -> Self; }
