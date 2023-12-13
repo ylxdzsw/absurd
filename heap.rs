@@ -2,7 +2,7 @@
 use std::collections::BinaryHeap;
 
 #[cfg(feature = "std")]
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct MinHeap<T, S: PartialOrd + Copy = f64>(BinaryHeap<MinHeapEntry<T, S>>);
 
 #[cfg(feature = "std")]
@@ -101,6 +101,13 @@ impl<T, S: PartialOrd + Copy> FromIterator<(T, S)> for MinHeap<T, S> {
 impl<T, S: PartialOrd + Copy> Extend<(T, S)> for MinHeap<T, S> {
     fn extend<I: IntoIterator<Item = (T, S)>>(&mut self, iter: I) {
         self.0.extend(iter.into_iter().map(|(data, priority)| MinHeapEntry { data, priority }));
+    }
+}
+
+#[cfg(feature = "std")]
+impl<T, S: PartialOrd + Copy> Default for MinHeap<T, S> { // deriving requires T to implement Default which is unnecessary
+    fn default() -> Self {
+        Self::new()
     }
 }
 
