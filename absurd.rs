@@ -5,6 +5,9 @@ pub use atomic::*;
 
 mod cfor;
 
+mod heap;
+pub use heap::*;
+
 mod ioext;
 pub use ioext::*;
 
