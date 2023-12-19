@@ -1,5 +1,8 @@
 #![cfg_attr(not(feature="std"), no_std, allow(unused_imports))]
 
+mod arena;
+pub use arena::*;
+
 mod atomic;
 pub use atomic::*;
 
