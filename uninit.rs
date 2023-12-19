@@ -48,20 +48,22 @@ mod tests {
     fn set_len_uninit_primitive() {
         let mut a = vec![1, 2, 3];
         a.set_len_uninit_primitive(4);
-        a[1] = a[3];
+        a[3] = a[1];
     }
 
     #[test]
     fn new_uninitialized_vec() {
         let mut a: Vec<u8> = new_uninit_primitive(4);
-        a[1] = a[3];
+        a[1] = 2;
+        a[3] = a[1];
         assert_eq!(a.len(), 4);
     }
 
     #[test]
     fn new_uninitialized_boxed_slice() {
         let mut a: Box::<[u8]> = new_uninit_primitive(4);
-        a[1] = a[3];
+        a[1] = 2;
+        a[3] = a[1];
         assert_eq!(a.len(), 4);
     }
 }

@@ -5,8 +5,14 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    env:
+      MIRIFLAGS: "-Zmiri-disable-isolation"
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo test --no-default-features
-      - run: cargo test
+        with:
+          componenets: miri
+      # - run: cargo test --no-default-features
+      # - run: cargo test
+      - run: cargo miri test
+      - run: cargo miri test --no-default-features

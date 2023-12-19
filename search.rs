@@ -1,9 +1,10 @@
-use core::{marker::PhantomData, hash::Hash};
+use core::hash::Hash;
+use core::marker::PhantomData;
 #[cfg(feature = "std")]
 use std::collections::{BinaryHeap, HashMap, BTreeMap};
-#[cfg(feature = "std")]
-use std::rc::Rc;
 use crate::Real;
+#[cfg(feature = "std")]
+use crate::Arena;
 
 /// The key is T and the value is (T, total_cost).
 pub trait Map<T: Clone, S: Real + Clone>: Default {
@@ -54,11 +55,43 @@ impl<T: Eq + Ord + Clone, S: Real + Clone> Map<T, S> for BTreeMap<T, (T, S)> {
     }
 }
 
+pub trait MapFactory<T> {
+    fn new<'a, S: Real + Clone>() -> impl Map<&'a T, S> where T: 'a;
+}
+
+struct DummyMapFactory;
+
+impl<T> MapFactory<T> for DummyMapFactory {
+    fn new<'a, S: Real + Clone>() -> impl Map<&'a T, S> where T: 'a {
+        DummyMap::default()
+    }
+}
+
+#[cfg(feature = "std")]
+struct HashMapFactory;
+
+#[cfg(feature = "std")]
+impl<T: Eq + Hash> MapFactory<T> for HashMapFactory {
+    fn new<'a, S: Real + Clone>() -> impl Map<&'a T, S> where T: 'a {
+        HashMap::new()
+    }
+}
+
+#[cfg(feature = "std")]
+struct BTreeMapFactory;
+
+#[cfg(feature = "std")]
+impl<T: Eq + Ord> MapFactory<T> for BTreeMapFactory {
+    fn new<'a, S: Real + Clone>() -> impl Map<&'a T, S> where T: 'a {
+        BTreeMap::new()
+    }
+}
+
 #[cfg(feature = "std")]
 pub struct ShortestPath<Node, F, H, C, S> where
     F: Fn(&Node) -> Option<Vec<(Node, S)>>,
     H: Fn(&Node) -> S,
-    C: Map<Rc<Node>, S>,
+    C: MapFactory<Node>,
     S: Real + Clone
 {
     eval_node: F,
@@ -67,7 +100,7 @@ pub struct ShortestPath<Node, F, H, C, S> where
 }
 
 #[cfg(feature = "std")]
-impl<Node, F, S> ShortestPath<Node, F, fn(&Node) -> S, DummyMap, S> where
+impl<Node, F, S> ShortestPath<Node, F, fn(&Node) -> S, DummyMapFactory, S> where
     F: Fn(&Node) -> Option<Vec<(Node, S)>>,
     S: Real + Clone
 {
@@ -81,13 +114,12 @@ impl<Node, F, S> ShortestPath<Node, F, fn(&Node) -> S, DummyMap, S> where
 }
 
 #[cfg(feature = "std")]
-impl<Node: Eq + Hash, F, H, S> ShortestPath<Node, F, H, DummyMap, S> where
+impl<Node: Eq + Hash, F, H, S> ShortestPath<Node, F, H, DummyMapFactory, S> where
     F: Fn(&Node) -> Option<Vec<(Node, S)>>,
     H: Fn(&Node) -> S,
     S: Real + Clone
 {
-
-    pub fn use_hash_set(self) -> ShortestPath<Node, F, H, HashMap<Rc<Node>, (Rc<Node>, S)>, S> {
+    pub fn use_hash_map(self) -> ShortestPath<Node, F, H, HashMapFactory, S> {
         ShortestPath {
             eval_node: self.eval_node,
             heuristic: self.heuristic,
@@ -97,13 +129,12 @@ impl<Node: Eq + Hash, F, H, S> ShortestPath<Node, F, H, DummyMap, S> where
 }
 
 #[cfg(feature = "std")]
-impl<Node: Eq + Ord, F, H, S> ShortestPath<Node, F, H, DummyMap, S> where
+impl<Node: Eq + Ord, F, H, S> ShortestPath<Node, F, H, DummyMapFactory, S> where
     F: Fn(&Node) -> Option<Vec<(Node, S)>>,
     H: Fn(&Node) -> S,
     S: Real + Clone
 {
-
-    pub fn use_btree_set(self) -> ShortestPath<Node, F, H, BTreeMap<Rc<Node>, (Rc<Node>, S)>, S> {
+    pub fn use_btree_map(self) -> ShortestPath<Node, F, H, BTreeMapFactory, S> {
         ShortestPath {
             eval_node: self.eval_node,
             heuristic: self.heuristic,
@@ -116,7 +147,7 @@ impl<Node: Eq + Ord, F, H, S> ShortestPath<Node, F, H, DummyMap, S> where
 impl<Node, F, H, C, S> ShortestPath<Node, F, H, C, S> where
     F: Fn(&Node) -> Option<Vec<(Node, S)>>,
     H: Fn(&Node) -> S,
-    C: Map<Rc<Node>, S>,
+    C: MapFactory<Node>,
     S: Real + Clone
 {
     pub fn use_heuristic<H2: Fn(&Node) -> S>(self, heuristic: H2) -> ShortestPath<Node, F, H2, C, S> {
@@ -127,74 +158,71 @@ impl<Node, F, H, C, S> ShortestPath<Node, F, H, C, S> where
         }
     }
 
-    fn _solve(&self, init_nodes: impl IntoIterator<Item=Node>) -> Option<(Vec<Rc<Node>>, S)> {
-        struct HeapElement<Node, S>(Rc<Node>, (Rc<Node>, S), S);
+    pub fn solve(&self, init_nodes: impl IntoIterator<Item=Node>) -> Option<(Vec<Node>, S)> {
+        struct HeapElement<'a, Node, S>(&'a Node, (&'a Node, S), S);
 
-        impl<Node, S: Real + Clone> PartialEq for HeapElement<Node, S> {
+        impl<'a, Node, S: Real + Clone> PartialEq for HeapElement<'a, Node, S> {
             fn eq(&self, other: &Self) -> bool {
                 self.2 == other.2
             }
         }
 
-        impl<Node, S: Real + Clone> Eq for HeapElement<Node, S> {}
+        impl<'a, Node, S: Real + Clone> Eq for HeapElement<'a, Node, S> {}
 
-        impl<Node, S: Real + Clone> PartialOrd for HeapElement<Node, S> {
+        impl<'a, Node, S: Real + Clone> PartialOrd for HeapElement<'a, Node, S> {
             fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
                 Some(self.cmp(other))
             }
         }
 
-        impl<Node, S: Real + Clone> Ord for HeapElement<Node, S> {
+        impl<'a, Node, S: Real + Clone> Ord for HeapElement<'a, Node, S> {
             fn cmp(&self, other: &Self) -> std::cmp::Ordering {
                 self.2.partial_cmp(&other.2).map(|x| x.reverse()).unwrap() // reverse to make it a min heap
             }
         }
 
+        let arena: Arena = Arena::new();
         let mut frontier = BinaryHeap::new();
-        let mut came_from = C::default();
+        let mut came_from = C::new();
 
         for node in init_nodes {
-            let node = Rc::new(node);
-            let ecost = (self.heuristic)(&node);
-            frontier.push(HeapElement(node.clone(), (node.clone(), S::zero()), ecost));
+            let node = arena.alloc(node);
+            let ecost = (self.heuristic)(node);
+            frontier.push(HeapElement(node, (node, S::zero()), ecost));
         }
 
         while let Some(HeapElement(node, (parent, total_cost), _)) = frontier.pop() {
-            let worth_trying = came_from.insert_if_better(node.clone(), (parent.clone(), total_cost.clone()));
+            let worth_trying = came_from.insert_if_better(node, (parent, total_cost.clone()));
             if !worth_trying {
                 continue;
             }
 
             if let Some(children) = (self.eval_node)(&node) {
                 for (child, cost) in children {
+                    let child = arena.alloc(child);
                     let child_cost = total_cost.clone() + cost;
                     let ecost = child_cost.clone() + (self.heuristic)(&node);
-                    frontier.push(HeapElement(Rc::new(child), (node.clone(), child_cost), ecost));
+                    frontier.push(HeapElement(child, (node, child_cost), ecost));
                 }
             } else {
-                let mut path = vec![node.clone()];
+                let mut path = vec![node];
                 let mut current = &node;
                 while let Some((parent, _)) = came_from.get(current) {
-                    if Rc::ptr_eq(parent, current) {
+                    if core::ptr::eq(parent, current) {
                         break
                     }
-                    path.push(parent.clone());
+                    path.push(parent);
                     current = parent
                 }
-                return Some((path, total_cost));
+                let mut results = Vec::with_capacity(path.len());
+                while let Some(node) = path.pop() {
+                    results.push(unsafe { core::ptr::read(node) });
+                }
+                return Some((results, total_cost));
             }
         }
 
         None
-    }
-
-    pub fn solve(&self, init_nodes: impl IntoIterator<Item=Node>) -> Option<(Vec<Node>, S)> {
-        let (mut rcs_in_reverse_order, cost) = self._solve(init_nodes)?;
-        let mut results = Vec::with_capacity(rcs_in_reverse_order.len());
-        while let Some(rc) = rcs_in_reverse_order.pop() {
-            results.push(Rc::try_unwrap(rc).unwrap_or_else(|_| panic!("Unwrapping Rc failed")));
-        }
-        Some((results, cost))
     }
 }
 
@@ -254,14 +282,14 @@ mod tests {
         };
 
         let edit_distance = ShortestPath::new(problem)
-            .use_hash_set()
+            .use_hash_map()
             .solve(vec![(0, 0)]).unwrap();
 
         assert_eq!(edit_distance.1, 11);
 
         let edit_distance = ShortestPath::new(problem)
             .use_heuristic(|&(i, j)| (target_string.len() - i).abs_diff(input_string.len() - j))
-            .use_btree_set()
+            .use_btree_map()
             .solve(vec![(0, 0)]).unwrap();
 
         assert_eq!(edit_distance.1, 11);

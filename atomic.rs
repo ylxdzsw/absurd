@@ -165,7 +165,11 @@ impl<T> PtrAlike<T> for Box<T> {
 
 impl<T, S: PtrAlike<T>> PtrAlike<T> for Option<S> {
     unsafe fn from_ptr(ptr: *mut T) -> Self {
-        Some(S::from_ptr(ptr))
+        if ptr.is_null() {
+            None
+        } else {
+            Some(S::from_ptr(ptr))
+        }
     }
 
     fn into_ptr(self) -> *mut T {

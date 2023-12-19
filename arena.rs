@@ -49,8 +49,8 @@ impl<const N: usize, const C: usize> Arena<N, C> {
     }
 
     pub fn alloc_uninitialized<T>(&self) -> &mut MaybeUninit<T> {
-        let inner = unsafe { &mut *self.inner.get() };
         loop {
+            let inner = unsafe { &mut *self.inner.get() };
             let align_offset = inner.ptr.align_offset(core::mem::align_of::<T>());
             if align_offset + core::mem::size_of::<T>() > inner.capacity {
                 self.grow();
