@@ -2,6 +2,9 @@ use core::mem::MaybeUninit;
 use core::cell::UnsafeCell;
 
 /// `N` is the initial chunk size (in bytes)
+/// `C` is the maximum number of chunks
+/// chunks are allocated with exponential size, starting at `N` and doubles.
+/// the total size is `N * (2^C - 1)`
 #[derive(Debug)]
 pub struct Arena<const N: usize = 1024, const C: usize = 30> {
     inner: UnsafeCell<ArenaInner<C>>,
@@ -13,9 +16,6 @@ struct ArenaInner<const C: usize> {
     capacity: usize, // remaining capacity of the current chunk
     chunks: [*mut u8; C], // begin of each chunk, including the current one (as the first non-null element).
 }
-
-// Note: the allocated pointers must borrow from the arena, and we cannot use &mut self in alloc function
-// because the user may drop the arena with an &mut referece, which invalidates all pointers
 
 #[cfg(feature = "std")]
 impl<const N: usize, const C: usize> Arena<N, C> {
@@ -49,17 +49,19 @@ impl<const N: usize, const C: usize> Arena<N, C> {
     }
 
     pub fn alloc_uninitialized<T>(&self) -> &mut MaybeUninit<T> {
+        let size = core::mem::size_of::<T>();
+        assert!(size > 0, "Zero sized types are not supported"); // not sure
         loop {
             let inner = unsafe { &mut *self.inner.get() };
             let align_offset = inner.ptr.align_offset(core::mem::align_of::<T>());
-            if align_offset + core::mem::size_of::<T>() > inner.capacity {
+            if align_offset + size > inner.capacity {
                 self.grow();
                 continue;
             }
 
             let ptr = unsafe { inner.ptr.add(align_offset) };
-            inner.ptr = unsafe { inner.ptr.add(align_offset + core::mem::size_of::<T>()) };
-            inner.capacity -= align_offset + core::mem::size_of::<T>();
+            inner.ptr = unsafe { inner.ptr.add(align_offset + size) };
+            inner.capacity -= align_offset + size;
             return unsafe { &mut *(ptr as *mut MaybeUninit<T>) };
         }
     }
@@ -142,6 +144,3 @@ mod tests {
         }
     }
 }
-
-// TODO: zero sized types?
-// TODO: Allocator api?
