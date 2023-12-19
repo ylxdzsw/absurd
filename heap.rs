@@ -3,42 +3,42 @@ use std::collections::BinaryHeap;
 
 #[cfg(feature = "std")]
 #[derive(Debug, Clone)]
-pub struct MinHeap<T, S: PartialOrd + Copy = f64>(BinaryHeap<MinHeapEntry<T, S>>);
+pub struct MinHeap<T, S: PartialOrd = f64>(BinaryHeap<MinHeapEntry<T, S>>);
 
 #[cfg(feature = "std")]
 #[derive(Debug, Clone)]
-struct MinHeapEntry<T, S: PartialOrd + Copy> {
+struct MinHeapEntry<T, S: PartialOrd> {
     priority: S,
     data: T,
 }
 
 #[cfg(feature = "std")]
-impl<T, S: PartialOrd + Copy> Ord for MinHeapEntry<T, S> {
+impl<T, S: PartialOrd> Ord for MinHeapEntry<T, S> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.partial_cmp(&other).unwrap()
     }
 }
 
 #[cfg(feature = "std")]
-impl<T, S: PartialOrd + Copy> PartialOrd for MinHeapEntry<T, S> {
+impl<T, S: PartialOrd> PartialOrd for MinHeapEntry<T, S> {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         self.priority.partial_cmp(&other.priority).map(|ord| ord.reverse())
     }
 }
 
 #[cfg(feature = "std")]
-impl<T, S: PartialOrd + Copy> PartialEq for MinHeapEntry<T, S> {
+impl<T, S: PartialOrd> PartialEq for MinHeapEntry<T, S> {
     fn eq(&self, other: &Self) -> bool {
         self.priority == other.priority
     }
 }
 
 #[cfg(feature = "std")]
-impl<T, S: PartialOrd + Copy> Eq for MinHeapEntry<T, S> {}
+impl<T, S: PartialOrd> Eq for MinHeapEntry<T, S> {}
 
 
 #[cfg(feature = "std")]
-impl<T, S: PartialOrd + Copy> MinHeap<T, S> {
+impl<T, S: PartialOrd> MinHeap<T, S> {
     pub fn new() -> Self {
         Self(BinaryHeap::new())
     }
@@ -89,7 +89,7 @@ impl<T, S: PartialOrd + Copy> MinHeap<T, S> {
 }
 
 #[cfg(feature = "std")]
-impl<T, S: PartialOrd + Copy> FromIterator<(T, S)> for MinHeap<T, S> {
+impl<T, S: PartialOrd> FromIterator<(T, S)> for MinHeap<T, S> {
     fn from_iter<I: IntoIterator<Item = (T, S)>>(iter: I) -> Self {
         let mut heap = Self::new();
         heap.extend(iter);
@@ -98,14 +98,14 @@ impl<T, S: PartialOrd + Copy> FromIterator<(T, S)> for MinHeap<T, S> {
 }
 
 #[cfg(feature = "std")]
-impl<T, S: PartialOrd + Copy> Extend<(T, S)> for MinHeap<T, S> {
+impl<T, S: PartialOrd> Extend<(T, S)> for MinHeap<T, S> {
     fn extend<I: IntoIterator<Item = (T, S)>>(&mut self, iter: I) {
         self.0.extend(iter.into_iter().map(|(data, priority)| MinHeapEntry { data, priority }));
     }
 }
 
 #[cfg(feature = "std")]
-impl<T, S: PartialOrd + Copy> Default for MinHeap<T, S> { // deriving requires T to implement Default which is unnecessary
+impl<T, S: PartialOrd> Default for MinHeap<T, S> { // deriving requires T to implement Default which is unnecessary
     fn default() -> Self {
         Self::new()
     }

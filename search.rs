@@ -1,10 +1,12 @@
 use core::hash::Hash;
 use core::marker::PhantomData;
 #[cfg(feature = "std")]
-use std::collections::{BinaryHeap, HashMap, BTreeMap};
+use std::collections::{HashMap, BTreeMap};
 use crate::Real;
 #[cfg(feature = "std")]
 use crate::Arena;
+#[cfg(feature = "std")]
+use crate::MinHeap;
 
 /// The key is T and the value is (T, total_cost).
 pub trait Map<T: Clone, S: Real + Clone>: Default {
@@ -159,39 +161,17 @@ impl<Node, F, H, C, S> ShortestPath<Node, F, H, C, S> where
     }
 
     pub fn solve(&self, init_nodes: impl IntoIterator<Item=Node>) -> Option<(Vec<Node>, S)> {
-        struct HeapElement<'a, Node, S>(&'a Node, (&'a Node, S), S);
-
-        impl<'a, Node, S: Real + Clone> PartialEq for HeapElement<'a, Node, S> {
-            fn eq(&self, other: &Self) -> bool {
-                self.2 == other.2
-            }
-        }
-
-        impl<'a, Node, S: Real + Clone> Eq for HeapElement<'a, Node, S> {}
-
-        impl<'a, Node, S: Real + Clone> PartialOrd for HeapElement<'a, Node, S> {
-            fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-                Some(self.cmp(other))
-            }
-        }
-
-        impl<'a, Node, S: Real + Clone> Ord for HeapElement<'a, Node, S> {
-            fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-                self.2.partial_cmp(&other.2).map(|x| x.reverse()).unwrap() // reverse to make it a min heap
-            }
-        }
-
         let arena: Arena = Arena::new();
-        let mut frontier = BinaryHeap::new();
+        let mut frontier = MinHeap::new();
         let mut came_from = C::new();
 
         for node in init_nodes {
-            let node = arena.alloc(node);
+            let node = &*arena.alloc(node);
             let ecost = (self.heuristic)(node);
-            frontier.push(HeapElement(node, (node, S::zero()), ecost));
+            frontier.push((node, node, S::zero()), ecost);
         }
 
-        while let Some(HeapElement(node, (parent, total_cost), _)) = frontier.pop() {
+        while let Some((node, parent, total_cost)) = frontier.pop() {
             let worth_trying = came_from.insert_if_better(node, (parent, total_cost.clone()));
             if !worth_trying {
                 continue;
@@ -202,7 +182,7 @@ impl<Node, F, H, C, S> ShortestPath<Node, F, H, C, S> where
                     let child = arena.alloc(child);
                     let child_cost = total_cost.clone() + cost;
                     let ecost = child_cost.clone() + (self.heuristic)(&node);
-                    frontier.push(HeapElement(child, (node, child_cost), ecost));
+                    frontier.push((child, node, child_cost), ecost);
                 }
             } else {
                 let mut path = vec![node];
