@@ -28,3 +28,6 @@ mod tests {
         assert_eq!(x, 5)
     }
 }
+
+pub trait IsTrue<const B: bool> {}
+impl IsTrue<true> for () {}
