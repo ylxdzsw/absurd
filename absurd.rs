@@ -1,10 +1,16 @@
 #![cfg_attr(not(feature="std"), no_std, allow(unused_imports))]
 
+mod algebra;
+pub use algebra::*;
+
 mod arena;
 pub use arena::*;
 
 mod atomic;
 pub use atomic::*;
+
+mod bitset;
+pub use bitset::*;
 
 mod cfor;
 

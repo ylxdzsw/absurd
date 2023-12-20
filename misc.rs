@@ -31,3 +31,15 @@ mod tests {
 
 pub trait IsTrue<const B: bool> {}
 impl IsTrue<true> for () {}
+
+#[macro_export]
+macro_rules! size_of {
+    ($t:ty) => { core::mem::size_of::<$t>() };
+    ($t:ty, $($ts:ty),+) => { core::mem::size_of::<$t>() + size_of!($($ts),+) };
+}
+
+#[macro_export]
+macro_rules! align_of {
+    ($t:ty) => { core::mem::align_of::<$t>() };
+    ($t:ty, $($ts:ty),+) => { core::cmp::max(core::mem::align_of::<$t>(), align_of!($($ts),+)) };
+}

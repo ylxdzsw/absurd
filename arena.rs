@@ -1,6 +1,8 @@
 use core::mem::MaybeUninit;
 use core::cell::UnsafeCell;
 
+use crate::{size_of, align_of};
+
 /// `N` is the initial chunk size (in bytes)
 /// `C` is the maximum number of chunks
 /// chunks are allocated with exponential size, starting at `N` and doubles.
@@ -49,19 +51,18 @@ impl<const N: usize, const C: usize> Arena<N, C> {
     }
 
     pub fn alloc_uninitialized<T>(&self) -> &mut MaybeUninit<T> {
-        let size = core::mem::size_of::<T>();
-        assert!(size > 0, "Zero sized types are not supported"); // not sure
+        assert!(size_of!(T) > 0, "Zero sized types are not supported"); // not sure
         loop {
             let inner = unsafe { &mut *self.inner.get() };
-            let align_offset = inner.ptr.align_offset(core::mem::align_of::<T>());
-            if align_offset + size > inner.capacity {
+            let align_offset = inner.ptr.align_offset(align_of!(T));
+            if align_offset + size_of!(T) > inner.capacity {
                 self.grow();
                 continue;
             }
 
             let ptr = unsafe { inner.ptr.add(align_offset) };
-            inner.ptr = unsafe { inner.ptr.add(align_offset + size) };
-            inner.capacity -= align_offset + size;
+            inner.ptr = unsafe { inner.ptr.add(align_offset + size_of!(T)) };
+            inner.capacity -= align_offset + size_of!(T);
             return unsafe { &mut *(ptr as *mut MaybeUninit<T>) };
         }
     }

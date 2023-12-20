@@ -1,7 +1,7 @@
-use core::ops::{Add, Sub, Mul, Div, Rem};
+use core::ops::{Add, Sub, Mul, Div, Rem, BitAnd, BitOr, BitXor, Not, Shl, Shr, BitAndAssign, BitOrAssign, BitXorAssign, AddAssign, SubAssign, MulAssign, DivAssign, RemAssign, ShlAssign, ShrAssign, Neg};
 use core::fmt::Debug;
 
-pub trait FullBitPrimitive {}
+pub trait FullBitPrimitive: Copy {}
 impl FullBitPrimitive for u8 {}
 impl FullBitPrimitive for i8 {}
 impl FullBitPrimitive for u16 {}
@@ -53,9 +53,13 @@ pub trait Real:
     One +
     Zero +
     Add<Output=Self> +
+    AddAssign +
     Sub<Output=Self> +
+    SubAssign +
     Mul<Output=Self> +
+    MulAssign +
     Div<Output=Self> +
+    DivAssign +
     PartialOrd +
     PartialEq
 {}
@@ -77,5 +81,74 @@ impl Real for f64 {}
 
 pub trait Integer:
     Real +
-    Rem<Output=Self>
+    Rem<Output=Self> +
+    RemAssign
 {}
+
+pub trait Signed:
+    Real +
+    Neg<Output=Self>
+{}
+
+pub trait BitOps:
+    FullBitPrimitive +
+    BitAnd<Output=Self> +
+    BitAndAssign +
+    BitOr<Output=Self> +
+    BitOrAssign +
+    BitXor<Output=Self> +
+    BitXorAssign +
+    Not<Output=Self> +
+    Shl<usize, Output=Self> +
+    ShlAssign +
+    Shr<usize, Output=Self> +
+    ShrAssign
+{}
+
+// https://github.com/rust-lang/rust/issues/88581
+// pub trait RoundingExtForInteger {
+//     fn div_ceil(self, rhs: Self) -> Self;
+//     fn div_floor(self, rhs: Self) -> Self;
+//     fn next_multiple_of(self, rhs: Self) -> Self;
+// }
+
+// impl<T: Integer + Copy> RoundingExtForInteger for T {
+//     fn div_ceil(self, rhs: Self) -> Self {
+//         let d = self / rhs;
+//         let r = self % rhs;
+//         if (r > zero() && rhs > zero()) || (r < zero() && rhs < zero()) {
+//             d + one()
+//         } else {
+//             d
+//         }
+//     }
+
+//     fn div_floor(self, rhs: Self) -> Self {
+//         let d = self / rhs;
+//         let r = self % rhs;
+//         if (r > zero() && rhs < zero()) || (r < zero() && rhs > zero()) {
+//             d - one()
+//         } else {
+//             d
+//         }
+//     }
+
+//     fn next_multiple_of(self, rhs: Self) -> Self {
+//         if rhs + one() == zero() {
+//             return self;
+//         }
+
+//         let r = self % rhs;
+//         let m = if (r > zero() && rhs < zero()) || (r < zero() && rhs > zero()) {
+//             r + rhs
+//         } else {
+//             r
+//         };
+
+//         if m == zero() {
+//             self
+//         } else {
+//             self + (rhs - m)
+//         }
+//     }
+// }
