@@ -480,7 +480,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; PtrAlike&lt;T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>T {
+<span class="kw">impl</span>&lt;T&gt; PtrAlike&lt;T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'_ </span>T {
     <span class="kw">unsafe fn </span>from_ptr(ptr: <span class="kw-2">*mut </span>T) -&gt; <span class="self">Self </span>{
         <span class="kw-2">&amp;*</span>ptr
     }
@@ -490,7 +490,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T&gt; PtrAlike&lt;T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>T {
+<span class="kw">impl</span>&lt;T&gt; PtrAlike&lt;T&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'_ </span><span class="kw-2">mut </span>T {
     <span class="kw">unsafe fn </span>from_ptr(ptr: <span class="kw-2">*mut </span>T) -&gt; <span class="self">Self </span>{
         <span class="kw-2">&amp;mut *</span>ptr
     }
@@ -596,4 +596,5 @@
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>a.swap(y), <span class="number">5</span>);
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>a.into_inner(), <span class="number">6</span>);
     }
-}</code></pre></div></section></main></body></html>
+}
+</code></pre></div></section></main></body></html>
