@@ -14,6 +14,9 @@ pub use bitset::*;
 
 mod cfor;
 
+mod collections;
+pub use collections::*;
+
 mod heap;
 pub use heap::*;
 

@@ -82,13 +82,103 @@ impl Real for f64 {}
 pub trait Integer:
     Real +
     Rem<Output=Self> +
-    RemAssign
-{}
+    RemAssign +
+    Copy // TODO: Remove this?
+{
+    fn is_even(self) -> bool {
+        self % (Self::one() + Self::one()) == zero()
+    }
+    fn is_odd(self) -> bool {
+        self % (Self::one() + Self::one()) != zero()
+    }
+    fn next_multiple_of(self, rhs: Self) -> Self {
+        if rhs + one() == zero() {
+            return self;
+        }
+
+        let r = self % rhs;
+        let m = if (r > zero() && rhs < zero()) || (r < zero() && rhs > zero()) {
+            r + rhs
+        } else {
+            r
+        };
+
+        if m == zero() {
+            self
+        } else {
+            self + (rhs - m)
+        }
+    }
+    fn div_ceil(self, rhs: Self) -> Self {
+        let d = self / rhs;
+        let r = self % rhs;
+        if (r > zero() && rhs > zero()) || (r < zero() && rhs < zero()) {
+            d + one()
+        } else {
+            d
+        }
+    }
+    fn div_floor(self, rhs: Self) -> Self {
+        let d = self / rhs;
+        let r = self % rhs;
+        if (r > zero() && rhs < zero()) || (r < zero() && rhs > zero()) {
+            d - one()
+        } else {
+            d
+        }
+    }
+}
+
+impl Integer for u8 {
+    fn next_multiple_of(self, rhs: Self) -> Self { self.next_multiple_of(rhs) }
+    fn div_ceil(self, rhs: Self) -> Self { self.div_ceil(rhs) }
+    fn div_floor(self, rhs: Self) -> Self { self / rhs }
+}
+impl Integer for i8 {}
+impl Integer for u16 {
+    fn next_multiple_of(self, rhs: Self) -> Self { self.next_multiple_of(rhs) }
+    fn div_ceil(self, rhs: Self) -> Self { self.div_ceil(rhs) }
+    fn div_floor(self, rhs: Self) -> Self { self / rhs }
+}
+impl Integer for i16 {}
+impl Integer for u32 {
+    fn next_multiple_of(self, rhs: Self) -> Self { self.next_multiple_of(rhs) }
+    fn div_ceil(self, rhs: Self) -> Self { self.div_ceil(rhs) }
+    fn div_floor(self, rhs: Self) -> Self { self / rhs }
+}
+impl Integer for i32 {}
+impl Integer for u64 {
+    fn next_multiple_of(self, rhs: Self) -> Self { self.next_multiple_of(rhs) }
+    fn div_ceil(self, rhs: Self) -> Self { self.div_ceil(rhs) }
+    fn div_floor(self, rhs: Self) -> Self { self / rhs }
+}
+impl Integer for i64 {}
+impl Integer for u128 {
+    fn next_multiple_of(self, rhs: Self) -> Self { self.next_multiple_of(rhs) }
+    fn div_ceil(self, rhs: Self) -> Self { self.div_ceil(rhs) }
+    fn div_floor(self, rhs: Self) -> Self { self / rhs }
+}
+impl Integer for i128 {}
+impl Integer for usize {
+    fn next_multiple_of(self, rhs: Self) -> Self { self.next_multiple_of(rhs) }
+    fn div_ceil(self, rhs: Self) -> Self { self.div_ceil(rhs) }
+    fn div_floor(self, rhs: Self) -> Self { self / rhs }
+}
+impl Integer for isize {}
 
 pub trait Signed:
     Real +
     Neg<Output=Self>
 {}
+
+impl Signed for i8 {}
+impl Signed for i16 {}
+impl Signed for i32 {}
+impl Signed for i64 {}
+impl Signed for i128 {}
+impl Signed for isize {}
+impl Signed for f32 {}
+impl Signed for f64 {}
 
 pub trait BitOps:
     FullBitPrimitive +
@@ -105,50 +195,13 @@ pub trait BitOps:
     ShrAssign
 {}
 
-// https://github.com/rust-lang/rust/issues/88581
-// pub trait RoundingExtForInteger {
-//     fn div_ceil(self, rhs: Self) -> Self;
-//     fn div_floor(self, rhs: Self) -> Self;
-//     fn next_multiple_of(self, rhs: Self) -> Self;
-// }
-
-// impl<T: Integer + Copy> RoundingExtForInteger for T {
-//     fn div_ceil(self, rhs: Self) -> Self {
-//         let d = self / rhs;
-//         let r = self % rhs;
-//         if (r > zero() && rhs > zero()) || (r < zero() && rhs < zero()) {
-//             d + one()
-//         } else {
-//             d
-//         }
-//     }
-
-//     fn div_floor(self, rhs: Self) -> Self {
-//         let d = self / rhs;
-//         let r = self % rhs;
-//         if (r > zero() && rhs < zero()) || (r < zero() && rhs > zero()) {
-//             d - one()
-//         } else {
-//             d
-//         }
-//     }
-
-//     fn next_multiple_of(self, rhs: Self) -> Self {
-//         if rhs + one() == zero() {
-//             return self;
-//         }
-
-//         let r = self % rhs;
-//         let m = if (r > zero() && rhs < zero()) || (r < zero() && rhs > zero()) {
-//             r + rhs
-//         } else {
-//             r
-//         };
-
-//         if m == zero() {
-//             self
-//         } else {
-//             self + (rhs - m)
-//         }
-//     }
-// }
+impl BitOps for u8 {}
+impl BitOps for i8 {}
+impl BitOps for u16 {}
+impl BitOps for i16 {}
+impl BitOps for u32 {}
+impl BitOps for i32 {}
+impl BitOps for u64 {}
+impl BitOps for i64 {}
+impl BitOps for usize {}
+impl BitOps for isize {}

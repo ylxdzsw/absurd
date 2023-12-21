@@ -1,100 +1,21 @@
 use core::hash::Hash;
 use core::marker::PhantomData;
+use crate::ArrayMapConstructor;
+use crate::{Map, MapConstructor};
 #[cfg(feature = "std")]
-use std::collections::{HashMap, BTreeMap};
+use crate::{HashMapConstructor, BTreeMapConstructor};
 use crate::Real;
 #[cfg(feature = "std")]
 use crate::Arena;
 #[cfg(feature = "std")]
 use crate::MinHeap;
 
-/// The key is T and the value is (T, total_cost).
-pub trait Map<T: Clone, S: Real + Clone>: Default {
-    fn get(&self, item: &T) -> Option<&(T, S)>;
-    fn insert_if_better(&mut self, item: T, parent: (T, S)) -> bool;
-}
-
-#[derive(Default)]
-pub struct DummyMap;
-
-impl<T: Clone, S: Real + Clone> Map<T, S> for DummyMap {
-    fn get(&self, _item: &T) -> Option<&(T, S)> {
-        panic!("DummyMap should not be used")
-    }
-
-    fn insert_if_better(&mut self, _item: T, _parent: (T, S)) -> bool {
-        panic!("DummyMap should not be used")
-    }
-}
-
-#[cfg(feature = "std")]
-impl<T: Eq + Hash + Clone, S: Real + Clone> Map<T, S> for HashMap<T, (T, S)> {
-    fn get(&self, item: &T) -> Option<&(T, S)> {
-        self.get(item)
-    }
-
-    fn insert_if_better(&mut self, item: T, parent: (T, S)) -> bool {
-        if self.get(&item).map(|(_, cost)| cost <= &parent.1).unwrap_or_default() { // exist and better than the new one
-            return false;
-        }
-        self.insert(item, parent);
-        true
-    }
-}
-
-#[cfg(feature = "std")]
-impl<T: Eq + Ord + Clone, S: Real + Clone> Map<T, S> for BTreeMap<T, (T, S)> {
-    fn get(&self, item: &T) -> Option<&(T, S)> {
-        self.get(item)
-    }
-
-    fn insert_if_better(&mut self, item: T, parent: (T, S)) -> bool {
-        if self.get(&item).map(|(_, cost)| cost <= &parent.1).unwrap_or_default() { // exist and better than the new one
-            return false;
-        }
-        self.insert(item, parent);
-        true
-    }
-}
-
-pub trait MapFactory<T> {
-    fn new<'a, S: Real + Clone>() -> impl Map<&'a T, S> where T: 'a;
-}
-
-struct DummyMapFactory;
-
-impl<T> MapFactory<T> for DummyMapFactory {
-    fn new<'a, S: Real + Clone>() -> impl Map<&'a T, S> where T: 'a {
-        DummyMap::default()
-    }
-}
-
-#[cfg(feature = "std")]
-struct HashMapFactory;
-
-#[cfg(feature = "std")]
-impl<T: Eq + Hash> MapFactory<T> for HashMapFactory {
-    fn new<'a, S: Real + Clone>() -> impl Map<&'a T, S> where T: 'a {
-        HashMap::new()
-    }
-}
-
-#[cfg(feature = "std")]
-struct BTreeMapFactory;
-
-#[cfg(feature = "std")]
-impl<T: Eq + Ord> MapFactory<T> for BTreeMapFactory {
-    fn new<'a, S: Real + Clone>() -> impl Map<&'a T, S> where T: 'a {
-        BTreeMap::new()
-    }
-}
-
 #[cfg(feature = "std")]
 pub struct ShortestPath<Node, F, H, C, S> where
-    F: Fn(&Node) -> Option<Vec<(Node, S)>>,
-    H: Fn(&Node) -> S,
-    C: MapFactory<Node>,
-    S: Real + Clone
+    F: Fn(&Node) -> Option<Vec<(Node, S)>>, // F is the evaluation function
+    H: Fn(&Node) -> S, // H is the heuristic function
+    C: for <'a> MapConstructor<&'a Node>, // C is the cache implemenation
+    S: Real + Clone // S is the score (cost) type
 {
     eval_node: F,
     heuristic: H,
@@ -102,7 +23,7 @@ pub struct ShortestPath<Node, F, H, C, S> where
 }
 
 #[cfg(feature = "std")]
-impl<Node, F, S> ShortestPath<Node, F, fn(&Node) -> S, DummyMapFactory, S> where
+impl<Node: Eq, F, S> ShortestPath<Node, F, fn(&Node) -> S, ArrayMapConstructor<0>, S> where
     F: Fn(&Node) -> Option<Vec<(Node, S)>>,
     S: Real + Clone
 {
@@ -116,12 +37,12 @@ impl<Node, F, S> ShortestPath<Node, F, fn(&Node) -> S, DummyMapFactory, S> where
 }
 
 #[cfg(feature = "std")]
-impl<Node: Eq + Hash, F, H, S> ShortestPath<Node, F, H, DummyMapFactory, S> where
+impl<Node: Eq + Hash, F, H, S> ShortestPath<Node, F, H, ArrayMapConstructor<0>, S> where
     F: Fn(&Node) -> Option<Vec<(Node, S)>>,
     H: Fn(&Node) -> S,
     S: Real + Clone
 {
-    pub fn use_hash_map(self) -> ShortestPath<Node, F, H, HashMapFactory, S> {
+    pub fn use_hash_map(self) -> ShortestPath<Node, F, H, HashMapConstructor, S> {
         ShortestPath {
             eval_node: self.eval_node,
             heuristic: self.heuristic,
@@ -131,12 +52,12 @@ impl<Node: Eq + Hash, F, H, S> ShortestPath<Node, F, H, DummyMapFactory, S> wher
 }
 
 #[cfg(feature = "std")]
-impl<Node: Eq + Ord, F, H, S> ShortestPath<Node, F, H, DummyMapFactory, S> where
+impl<Node: Eq + Ord, F, H, S> ShortestPath<Node, F, H, ArrayMapConstructor<0>, S> where
     F: Fn(&Node) -> Option<Vec<(Node, S)>>,
     H: Fn(&Node) -> S,
     S: Real + Clone
 {
-    pub fn use_btree_map(self) -> ShortestPath<Node, F, H, BTreeMapFactory, S> {
+    pub fn use_btree_map(self) -> ShortestPath<Node, F, H, BTreeMapConstructor, S> {
         ShortestPath {
             eval_node: self.eval_node,
             heuristic: self.heuristic,
@@ -149,7 +70,7 @@ impl<Node: Eq + Ord, F, H, S> ShortestPath<Node, F, H, DummyMapFactory, S> where
 impl<Node, F, H, C, S> ShortestPath<Node, F, H, C, S> where
     F: Fn(&Node) -> Option<Vec<(Node, S)>>,
     H: Fn(&Node) -> S,
-    C: MapFactory<Node>,
+    C: for <'a> MapConstructor<&'a Node>,
     S: Real + Clone
 {
     pub fn use_heuristic<H2: Fn(&Node) -> S>(self, heuristic: H2) -> ShortestPath<Node, F, H2, C, S> {
@@ -172,10 +93,11 @@ impl<Node, F, H, C, S> ShortestPath<Node, F, H, C, S> where
         }
 
         while let Some((node, parent, total_cost)) = frontier.pop() {
-            let worth_trying = came_from.insert_if_better(node, (parent, total_cost.clone()));
-            if !worth_trying {
-                continue;
+            if came_from.get(&node).map(|(_, cost)| *cost < total_cost).unwrap_or(false) {
+                continue
             }
+
+            came_from.insert(node, (parent, total_cost.clone()));
 
             if let Some(children) = (self.eval_node)(&node) {
                 for (child, cost) in children {
