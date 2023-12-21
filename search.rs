@@ -99,11 +99,11 @@ impl<Node, F, H, C, S> ShortestPath<Node, F, H, C, S> where
 
             came_from.insert(node, (parent, total_cost.clone()));
 
-            if let Some(children) = (self.eval_node)(&node) {
+            if let Some(children) = (self.eval_node)(node) {
                 for (child, cost) in children {
                     let child = arena.alloc(child);
                     let child_cost = total_cost.clone() + cost;
-                    let ecost = child_cost.clone() + (self.heuristic)(&node);
+                    let ecost = child_cost.clone() + (self.heuristic)(node);
                     frontier.push((child, node, child_cost), ecost);
                 }
             } else {

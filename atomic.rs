@@ -180,7 +180,7 @@ impl<T, S: PtrAlike<T>> PtrAlike<T> for Option<S> {
     }
 }
 
-impl<'a, T> PtrAlike<T> for &'a T {
+impl<T> PtrAlike<T> for &'_ T {
     unsafe fn from_ptr(ptr: *mut T) -> Self {
         &*ptr
     }
@@ -190,7 +190,7 @@ impl<'a, T> PtrAlike<T> for &'a T {
     }
 }
 
-impl<'a, T> PtrAlike<T> for &'a mut T {
+impl<T> PtrAlike<T> for &'_ mut T {
     unsafe fn from_ptr(ptr: *mut T) -> Self {
         &mut *ptr
     }
