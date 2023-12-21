@@ -25,9 +25,11 @@ jobs:
   doc:
     name: Build documents
     runs-on: ubuntu-latest
+    env:
+      RUSTDOCFLAGS: "--enable-index-page -Zunstable-options"
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@nightly
       - run: cargo doc
       - uses: JamesIves/github-pages-deploy-action@v4.4.1
         with:
