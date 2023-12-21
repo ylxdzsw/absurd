@@ -22,3 +22,14 @@ jobs:
           components: miri
       - run: cargo miri test --no-default-features
       - run: cargo miri test
+  doc:
+    name: Build documents
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo doc
+      - uses: JamesIves/github-pages-deploy-action@v4.4.1
+        with:
+          branch: gh-pages
+          folder: "target/doc"
