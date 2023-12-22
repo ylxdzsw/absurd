@@ -63,7 +63,7 @@ impl<const N: usize, const C: usize> Arena<N, C> {
             let ptr = unsafe { inner.ptr.add(align_offset) };
             inner.ptr = unsafe { inner.ptr.add(align_offset + size_of!(T)) };
             inner.capacity -= align_offset + size_of!(T);
-            return unsafe { &mut *(ptr as *mut MaybeUninit<T>) };
+            return unsafe { &mut *ptr.cast() };
         }
     }
 }

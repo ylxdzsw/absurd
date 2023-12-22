@@ -8,14 +8,14 @@ pub struct MinHeap<T, S: PartialOrd = f64>(BinaryHeap<MinHeapEntry<T, S>>);
 #[cfg(feature = "std")]
 #[derive(Debug, Clone)]
 struct MinHeapEntry<T, S: PartialOrd> {
-    priority: S,
     data: T,
+    priority: S,
 }
 
 #[cfg(feature = "std")]
 impl<T, S: PartialOrd> Ord for MinHeapEntry<T, S> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.partial_cmp(&other).unwrap()
+        self.partial_cmp(other).unwrap()
     }
 }
 

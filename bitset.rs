@@ -9,7 +9,7 @@ macro_rules! bit_size_of {
     ($t:ty) => { size_of!($t) * 8 };
 }
 
-/// BitSet is a set of usize values.
+/// `BitSet` is a set of `usize` values.
 /// `T` can either be `Vec<FullBitPrimitive>` or `[FullBitPrimitive; N]`
 #[derive(Debug, Clone, Copy)]
 #[repr(transparent)]
@@ -47,7 +47,7 @@ impl<E: FullBitPrimitive + Integer + BitOps> BitSet<Vec<E>> {
         BitSet(vec![])
     }
 
-    /// Create a new BitSet with at least the capacity (in bits).
+    /// Create a new `BitSet` with at least the capacity (in bits).
     pub fn with_capacity(capacity: usize) -> Self {
         BitSet(Vec::with_capacity(capacity.div_ceil(bit_size_of!(E))))
     }

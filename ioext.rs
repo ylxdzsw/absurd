@@ -1,4 +1,4 @@
-use super::*;
+use crate::new_uninit_primitive;
 
 #[cfg(feature = "std")]
 pub trait ReadExt: std::io::Read {

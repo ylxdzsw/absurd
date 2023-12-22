@@ -1,4 +1,4 @@
-use core::{hash::Hash, mem::MaybeUninit, ops::{Deref, DerefMut}};
+use core::{hash::{Hash, BuildHasher}, mem::MaybeUninit, ops::{Deref, DerefMut}};
 #[cfg(feature = "std")]
 use std::collections::{HashMap, BTreeMap};
 
@@ -23,15 +23,15 @@ pub trait MapConstructor<K> {
 }
 
 #[cfg(feature = "std")]
-pub struct HashMapConstructor;
+pub struct HashMapConstructor<S: BuildHasher + Default = std::hash::RandomState>(core::marker::PhantomData<S>);
 
 #[cfg(feature = "std")]
-impl<K: Eq + Hash> MapConstructor<K> for HashMapConstructor {
-    type Map<V> = HashMap<K, V>;
+impl<K: Eq + Hash, S: BuildHasher + Default> MapConstructor<K> for HashMapConstructor<S> {
+    type Map<V> = HashMap<K, V, S>;
 }
 
 #[cfg(feature = "std")]
-impl<K: Eq + Hash, V> Map<K, V> for HashMap<K, V> {
+impl<K: Eq + Hash, V, S: BuildHasher + Default> Map<K, V> for HashMap<K, V, S> {
     fn get(&self, item: &K) -> Option<&V> {
         self.get(item)
     }
@@ -232,15 +232,15 @@ pub trait SetConstructor<T> {
 }
 
 #[cfg(feature = "std")]
-pub struct HashSetConstructor;
+pub struct HashSetConstructor<S: BuildHasher + Default = std::hash::RandomState>(core::marker::PhantomData<S>);
 
 #[cfg(feature = "std")]
-impl<T: Eq + Hash> SetConstructor<T> for HashSetConstructor {
+impl<T: Eq + Hash, S: BuildHasher + Default> SetConstructor<T> for HashSetConstructor<S> {
     type Set = std::collections::HashSet<T>;
 }
 
 #[cfg(feature = "std")]
-impl<T: Eq + Hash> Set<T> for std::collections::HashSet<T> {
+impl<T: Eq + Hash, S: BuildHasher + Default> Set<T> for std::collections::HashSet<T, S> {
     fn contains(&self, item: &T) -> bool {
         self.contains(item)
     }

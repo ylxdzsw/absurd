@@ -93,7 +93,7 @@ impl<Node, F, H, C, S> ShortestPath<Node, F, H, C, S> where
         }
 
         while let Some((node, parent, total_cost)) = frontier.pop() {
-            if came_from.get(&node).map(|(_, cost)| *cost < total_cost).unwrap_or(false) {
+            if came_from.get(&node).is_some_and(|(_, cost)| *cost < total_cost) {
                 continue
             }
 
@@ -128,8 +128,8 @@ impl<Node, F, H, C, S> ShortestPath<Node, F, H, C, S> where
     }
 }
 
-/// returns a tightened range (l, r) such that f(l) == false && f(r) == true && r - l <= target_range
-/// example: `binary_search((0.0, 100.0), 1e-6, |x| x * x * x + x > 5.0)` returns (1.51598, 1.51599)
+/// returns a tightened range `(l, r)` such that `f(l) == false && f(r) == true && r - l <= target_range`
+/// example: `binary_search((0.0, 100.0), 1e-6, |x| x * x * x + x > 5.0)` returns `(1.51598, 1.51599)`
 pub fn binary_search<T, F>(support: (T, T), target_range: T, f: F) -> (T, T) where
     T: Copy + Real,
     F: Fn(&T) -> bool
