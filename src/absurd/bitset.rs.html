@@ -166,24 +166,10 @@
 <a href="#165" id="165">165</a>
 <a href="#166" id="166">166</a>
 <a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
-<a href="#178" id="178">178</a>
-<a href="#179" id="179">179</a>
-<a href="#180" id="180">180</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::BitOps;
 <span class="kw">use </span><span class="kw">crate</span>::FullBitPrimitive;
 <span class="kw">use </span><span class="kw">crate</span>::Integer;
 <span class="kw">use </span><span class="kw">crate</span>::Set;
-<span class="kw">use </span><span class="kw">crate</span>::SetConstructor;
 <span class="kw">use </span><span class="kw">crate</span>::size_of;
 
 <span class="macro">macro_rules! </span>bit_size_of {
@@ -311,21 +297,9 @@
     }
 }
 
-<span class="kw">pub struct </span>BitSetConstructor&lt;S&gt;(core::marker::PhantomData&lt;S&gt;);
-
-<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">impl</span>&lt;E: FullBitPrimitive + Integer + BitOps, T: Into&lt;usize&gt; + Copy&gt; SetConstructor&lt;T&gt; <span class="kw">for </span>BitSetConstructor&lt;Vec&lt;E&gt;&gt; {
-    <span class="kw">type </span>Set = BitSet&lt;Vec&lt;E&gt;&gt;;
-}
-
-<span class="kw">impl</span>&lt;E: FullBitPrimitive + Integer + BitOps, T: Into&lt;usize&gt; + Copy, <span class="kw">const </span>N: usize&gt; SetConstructor&lt;T&gt; <span class="kw">for </span>BitSetConstructor&lt;[E; N]&gt; {
-    <span class="kw">type </span>Set = BitSet&lt;[E; N]&gt;;
-}
-
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use crate</span>::{SetConstructor, new_usize_type};
-
+    <span class="kw">use </span><span class="kw">crate</span>::new_usize_type;
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
@@ -344,19 +318,19 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_bitset_with_set_constructor_and_usize_types() {
         <span class="macro">new_usize_type!</span>(Foo);
-        <span class="kw">fn </span>foo&lt;S: SetConstructor&lt;Foo&gt;&gt;() {
-            <span class="kw">let </span><span class="kw-2">mut </span>set = S::new();
+        <span class="kw">fn </span>foo&lt;S: Set&lt;Foo&gt;&gt;() {
+            <span class="kw">let </span><span class="kw-2">mut </span>set = S::default();
             set.insert(Foo(<span class="number">5</span>));
             <span class="macro">assert!</span>(set.contains(<span class="kw-2">&amp;</span>Foo(<span class="number">5</span>)));
             <span class="macro">assert!</span>(!set.contains(<span class="kw-2">&amp;</span>Foo(<span class="number">6</span>)));
             set.insert(Foo(<span class="number">666</span>));
         }
         <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-        </span>foo::&lt;BitSetConstructor&lt;Vec&lt;u32&gt;&gt;&gt;();
-        foo::&lt;BitSetConstructor&lt;[u8; <span class="number">256</span>]&gt;&gt;();
-        foo::&lt;BitSetConstructor&lt;[isize; <span class="number">32</span>]&gt;&gt;();
+        </span>foo::&lt;BitSet&lt;Vec&lt;u32&gt;&gt;&gt;();
+        foo::&lt;BitSet&lt;[u8; <span class="number">256</span>]&gt;&gt;();
+        foo::&lt;BitSet&lt;[isize; <span class="number">32</span>]&gt;&gt;();
         <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-        </span>foo::&lt;<span class="kw">crate</span>::BTreeSetConstructor&gt;();
+        </span>foo::&lt;std::collections::BTreeSet&lt;<span class="kw">_</span>&gt;&gt;();
     }
 }
 </code></pre></div></section></main></body></html>

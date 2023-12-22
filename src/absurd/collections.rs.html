@@ -401,33 +401,6 @@
 <a href="#400" id="400">400</a>
 <a href="#401" id="401">401</a>
 <a href="#402" id="402">402</a>
-<a href="#403" id="403">403</a>
-<a href="#404" id="404">404</a>
-<a href="#405" id="405">405</a>
-<a href="#406" id="406">406</a>
-<a href="#407" id="407">407</a>
-<a href="#408" id="408">408</a>
-<a href="#409" id="409">409</a>
-<a href="#410" id="410">410</a>
-<a href="#411" id="411">411</a>
-<a href="#412" id="412">412</a>
-<a href="#413" id="413">413</a>
-<a href="#414" id="414">414</a>
-<a href="#415" id="415">415</a>
-<a href="#416" id="416">416</a>
-<a href="#417" id="417">417</a>
-<a href="#418" id="418">418</a>
-<a href="#419" id="419">419</a>
-<a href="#420" id="420">420</a>
-<a href="#421" id="421">421</a>
-<a href="#422" id="422">422</a>
-<a href="#423" id="423">423</a>
-<a href="#424" id="424">424</a>
-<a href="#425" id="425">425</a>
-<a href="#426" id="426">426</a>
-<a href="#427" id="427">427</a>
-<a href="#428" id="428">428</a>
-<a href="#429" id="429">429</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::{hash::{Hash, BuildHasher}, mem::MaybeUninit, ops::{Deref, DerefMut}};
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use </span>std::collections::{HashMap, BTreeMap};
@@ -453,7 +426,7 @@
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">pub struct </span>HashMapConstructor&lt;S: BuildHasher + Default = std::hash::RandomState&gt;(core::marker::PhantomData&lt;S&gt;);
+</span><span class="kw">pub struct </span>HashMapConstructor&lt;S: BuildHasher + Default = std::collections::hash_map::RandomState&gt;(core::marker::PhantomData&lt;S&gt;);
 
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl</span>&lt;K: Eq + Hash, S: BuildHasher + Default&gt; MapConstructor&lt;K&gt; <span class="kw">for </span>HashMapConstructor&lt;S&gt; {
@@ -646,27 +619,14 @@
     <span class="kw">type </span>Map&lt;V&gt; = ArrayMap&lt;K, V, N&gt;;
 }
 
+<span class="kw">pub type </span>ArraySet&lt;T, <span class="kw">const </span>N: usize&gt; = ArrayMap&lt;T, (), N&gt;;
+
 <span class="kw">pub trait </span>Set&lt;T&gt;: Default {
     <span class="kw">fn </span>contains(<span class="kw-2">&amp;</span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>T) -&gt; bool;
     <span class="doccomment">/// Returns true if the item is newly inserted (i.e. true means the item was not present).
     </span><span class="kw">fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: T) -&gt; bool;
     <span class="doccomment">/// Returns true if the item is removed (i.e. true means the item was present).
     </span><span class="kw">fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>T) -&gt; bool;
-}
-
-<span class="kw">pub trait </span>SetConstructor&lt;T&gt; {
-    <span class="kw">type </span>Set: Set&lt;T&gt;;
-    <span class="kw">fn </span>new() -&gt; <span class="self">Self</span>::Set {
-        Default::default()
-    }
-}
-
-<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">pub struct </span>HashSetConstructor&lt;S: BuildHasher + Default = std::hash::RandomState&gt;(core::marker::PhantomData&lt;S&gt;);
-
-<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">impl</span>&lt;T: Eq + Hash, S: BuildHasher + Default&gt; SetConstructor&lt;T&gt; <span class="kw">for </span>HashSetConstructor&lt;S&gt; {
-    <span class="kw">type </span>Set = std::collections::HashSet&lt;T&gt;;
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
@@ -682,14 +642,6 @@
     <span class="kw">fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>T) -&gt; bool {
         <span class="self">self</span>.remove(item)
     }
-}
-
-<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">pub struct </span>BTreeSetConstructor;
-
-<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">impl</span>&lt;T: Eq + Ord&gt; SetConstructor&lt;T&gt; <span class="kw">for </span>BTreeSetConstructor {
-    <span class="kw">type </span>Set = std::collections::BTreeSet&lt;T&gt;;
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
@@ -730,12 +682,6 @@
             <span class="prelude-val">None </span>=&gt; <span class="bool-val">false</span>,
         }
     }
-}
-
-<span class="kw">pub struct </span>ArraySetConstructor&lt;<span class="kw">const </span>N: usize&gt;;
-
-<span class="kw">impl</span>&lt;T: Eq, <span class="kw">const </span>N: usize&gt; SetConstructor&lt;T&gt; <span class="kw">for </span>ArraySetConstructor&lt;N&gt; {
-    <span class="kw">type </span>Set = ArrayMap&lt;T, (), N&gt;;
 }
 
 <span class="comment">// vec map
@@ -784,8 +730,8 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_set_constructors() {
-        <span class="kw">fn </span>foo&lt;S: SetConstructor&lt;usize&gt;&gt;() {
-            <span class="kw">let </span><span class="kw-2">mut </span>set = S::new();
+        <span class="kw">fn </span>foo&lt;S: Set&lt;usize&gt;&gt;() {
+            <span class="kw">let </span><span class="kw-2">mut </span>set = S::default();
             set.insert(<span class="number">1</span>);
             <span class="macro">assert!</span>(set.contains(<span class="kw-2">&amp;</span><span class="number">1</span>));
             <span class="macro">assert!</span>(!set.contains(<span class="kw-2">&amp;</span><span class="number">2</span>));
@@ -796,10 +742,10 @@
         }
 
         <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-        </span>foo::&lt;HashSetConstructor&gt;();
+        </span>foo::&lt;std::collections::HashSet&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-        </span>foo::&lt;BTreeSetConstructor&gt;();
-        foo::&lt;ArraySetConstructor&lt;<span class="number">3</span>&gt;&gt;();
+        </span>foo::&lt;std::collections::BTreeSet&lt;<span class="kw">_</span>&gt;&gt;();
+        foo::&lt;ArraySet&lt;<span class="kw">_</span>, <span class="number">3</span>&gt;&gt;();
     }
 
     <span class="attr">#[test]
