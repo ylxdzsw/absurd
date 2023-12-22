@@ -23,7 +23,7 @@ pub trait MapConstructor<K> {
 }
 
 #[cfg(feature = "std")]
-pub struct HashMapConstructor<S: BuildHasher + Default = std::hash::RandomState>(core::marker::PhantomData<S>);
+pub struct HashMapConstructor<S: BuildHasher + Default = std::collections::hash_map::RandomState>(core::marker::PhantomData<S>);
 
 #[cfg(feature = "std")]
 impl<K: Eq + Hash, S: BuildHasher + Default> MapConstructor<K> for HashMapConstructor<S> {
@@ -216,27 +216,14 @@ impl<K: Eq, const N: usize> MapConstructor<K> for ArrayMapConstructor<N> {
     type Map<V> = ArrayMap<K, V, N>;
 }
 
+pub type ArraySet<T, const N: usize> = ArrayMap<T, (), N>;
+
 pub trait Set<T>: Default {
     fn contains(&self, item: &T) -> bool;
     /// Returns true if the item is newly inserted (i.e. true means the item was not present).
     fn insert(&mut self, item: T) -> bool;
     /// Returns true if the item is removed (i.e. true means the item was present).
     fn remove(&mut self, item: &T) -> bool;
-}
-
-pub trait SetConstructor<T> {
-    type Set: Set<T>;
-    fn new() -> Self::Set {
-        Default::default()
-    }
-}
-
-#[cfg(feature = "std")]
-pub struct HashSetConstructor<S: BuildHasher + Default = std::hash::RandomState>(core::marker::PhantomData<S>);
-
-#[cfg(feature = "std")]
-impl<T: Eq + Hash, S: BuildHasher + Default> SetConstructor<T> for HashSetConstructor<S> {
-    type Set = std::collections::HashSet<T>;
 }
 
 #[cfg(feature = "std")]
@@ -252,14 +239,6 @@ impl<T: Eq + Hash, S: BuildHasher + Default> Set<T> for std::collections::HashSe
     fn remove(&mut self, item: &T) -> bool {
         self.remove(item)
     }
-}
-
-#[cfg(feature = "std")]
-pub struct BTreeSetConstructor;
-
-#[cfg(feature = "std")]
-impl<T: Eq + Ord> SetConstructor<T> for BTreeSetConstructor {
-    type Set = std::collections::BTreeSet<T>;
 }
 
 #[cfg(feature = "std")]
@@ -300,12 +279,6 @@ impl<T: Eq, const N: usize> Set<T> for ArrayMap<T, (), N> {
             None => false,
         }
     }
-}
-
-pub struct ArraySetConstructor<const N: usize>;
-
-impl<T: Eq, const N: usize> SetConstructor<T> for ArraySetConstructor<N> {
-    type Set = ArrayMap<T, (), N>;
 }
 
 // vec map
@@ -354,8 +327,8 @@ mod tests {
 
     #[test]
     fn test_set_constructors() {
-        fn foo<S: SetConstructor<usize>>() {
-            let mut set = S::new();
+        fn foo<S: Set<usize>>() {
+            let mut set = S::default();
             set.insert(1);
             assert!(set.contains(&1));
             assert!(!set.contains(&2));
@@ -366,10 +339,10 @@ mod tests {
         }
 
         #[cfg(feature = "std")]
-        foo::<HashSetConstructor>();
+        foo::<std::collections::HashSet<_>>();
         #[cfg(feature = "std")]
-        foo::<BTreeSetConstructor>();
-        foo::<ArraySetConstructor<3>>();
+        foo::<std::collections::BTreeSet<_>>();
+        foo::<ArraySet<_, 3>>();
     }
 
     #[test]

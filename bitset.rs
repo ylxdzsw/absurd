@@ -2,7 +2,6 @@ use crate::BitOps;
 use crate::FullBitPrimitive;
 use crate::Integer;
 use crate::Set;
-use crate::SetConstructor;
 use crate::size_of;
 
 macro_rules! bit_size_of {
@@ -130,21 +129,9 @@ impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy, const N: usi
     }
 }
 
-pub struct BitSetConstructor<S>(core::marker::PhantomData<S>);
-
-#[cfg(feature = "std")]
-impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy> SetConstructor<T> for BitSetConstructor<Vec<E>> {
-    type Set = BitSet<Vec<E>>;
-}
-
-impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy, const N: usize> SetConstructor<T> for BitSetConstructor<[E; N]> {
-    type Set = BitSet<[E; N]>;
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::{SetConstructor, new_usize_type};
-
+    use crate::new_usize_type;
     use super::*;
 
     #[cfg(feature = "std")]
@@ -163,18 +150,18 @@ mod tests {
     #[test]
     fn test_bitset_with_set_constructor_and_usize_types() {
         new_usize_type!(Foo);
-        fn foo<S: SetConstructor<Foo>>() {
-            let mut set = S::new();
+        fn foo<S: Set<Foo>>() {
+            let mut set = S::default();
             set.insert(Foo(5));
             assert!(set.contains(&Foo(5)));
             assert!(!set.contains(&Foo(6)));
             set.insert(Foo(666));
         }
         #[cfg(feature = "std")]
-        foo::<BitSetConstructor<Vec<u32>>>();
-        foo::<BitSetConstructor<[u8; 256]>>();
-        foo::<BitSetConstructor<[isize; 32]>>();
+        foo::<BitSet<Vec<u32>>>();
+        foo::<BitSet<[u8; 256]>>();
+        foo::<BitSet<[isize; 32]>>();
         #[cfg(feature = "std")]
-        foo::<crate::BTreeSetConstructor>();
+        foo::<std::collections::BTreeSet<_>>();
     }
 }
