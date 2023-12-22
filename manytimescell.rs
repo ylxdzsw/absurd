@@ -46,13 +46,13 @@ struct BorrowGuard<'a, T> {
     cell: &'a ManyTimesCell<T>
 }
 
-impl<'a, T> Drop for BorrowGuard<'a, T> {
+impl<T> Drop for BorrowGuard<'_, T> {
     fn drop(&mut self) {
         self.cell.state.store(UN_BORROWED, Ordering::Release);
     }
 }
 
-impl<'a, T> core::ops::Deref for BorrowGuard<'a, T> {
+impl<T> core::ops::Deref for BorrowGuard<'_, T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
@@ -60,7 +60,7 @@ impl<'a, T> core::ops::Deref for BorrowGuard<'a, T> {
     }
 }
 
-impl<'a, T> core::ops::DerefMut for BorrowGuard<'a, T> {
+impl<T> core::ops::DerefMut for BorrowGuard<'_, T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         unsafe { &mut *self.cell.value.get() }
     }
