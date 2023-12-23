@@ -1,8 +1,8 @@
-use core::{hash::{Hash, BuildHasher}, mem::MaybeUninit, ops::{Deref, DerefMut}};
+use core::{hash::{Hash, BuildHasher}, mem::{MaybeUninit, ManuallyDrop}, ops::{Deref, DerefMut}, iter::FusedIterator};
 #[cfg(feature = "std")]
 use std::collections::{HashMap, BTreeMap};
 
-pub trait Map<K, V>: Default {
+pub trait Map<K, V>: Default + FromIterator<(K, V)> + IntoIterator<Item = (K, V)> {
     fn get(&self, item: &K) -> Option<&V>;
     fn get_mut(&mut self, item: &K) -> Option<&mut V>;
     fn insert(&mut self, item: K, value: V);
@@ -13,6 +13,11 @@ pub trait Map<K, V>: Default {
         self.remove_entry(item).map(|(_, v)| v)
     }
     fn remove_entry(&mut self, item: &K) -> Option<(K, V)>;
+    fn keys<'a>(&'a self) -> impl Iterator<Item = &'a K> where K: 'a;
+    fn values<'a>(&'a self) -> impl Iterator<Item = &'a V> where V: 'a;
+    fn values_mut<'a>(&'a mut self) -> impl Iterator<Item = &'a mut V> where V: 'a;
+    fn iter<'a>(&'a self) -> impl Iterator<Item = (&'a K, &'a V)> where K: 'a, V: 'a;
+    fn iter_mut<'a>(&'a mut self) -> impl Iterator<Item = (&'a K, &'a mut V)> where K: 'a, V: 'a;
 }
 
 pub trait MapConstructor<K> {
@@ -55,6 +60,31 @@ impl<K: Eq + Hash, V, S: BuildHasher + Default> Map<K, V> for HashMap<K, V, S> {
     fn remove_entry(&mut self, item: &K) -> Option<(K, V)> {
         self.remove_entry(item)
     }
+
+    #[allow(refining_impl_trait)]
+    fn keys<'a>(&'a self) -> impl ExactSizeIterator<Item = &K> + FusedIterator where K: 'a {
+        self.keys()
+    }
+
+    #[allow(refining_impl_trait)]
+    fn values<'a>(&'a self) -> impl ExactSizeIterator<Item = &V> + FusedIterator where K: 'a {
+        self.values()
+    }
+
+    #[allow(refining_impl_trait)]
+    fn values_mut<'a>(&'a mut self) -> impl ExactSizeIterator<Item = &mut V> + FusedIterator where K: 'a {
+        self.values_mut()
+    }
+
+    #[allow(refining_impl_trait)]
+    fn iter<'a>(&'a self) -> impl ExactSizeIterator<Item = (&'a K, &'a V)> + FusedIterator where K: 'a, V: 'a {
+        self.iter()
+    }
+
+    #[allow(refining_impl_trait)]
+    fn iter_mut<'a>(&'a mut self) -> impl ExactSizeIterator<Item = (&'a K, &'a mut V)> + FusedIterator where K: 'a, V: 'a {
+        self.iter_mut()
+    }
 }
 
 #[cfg(feature = "std")]
@@ -89,6 +119,31 @@ impl<K: Eq + Ord, V> Map<K, V> for BTreeMap<K, V> {
 
     fn remove_entry(&mut self, item: &K) -> Option<(K, V)> {
         self.remove_entry(item)
+    }
+
+    #[allow(refining_impl_trait)]
+    fn keys<'a>(&'a self) -> impl ExactSizeIterator<Item = &K> + DoubleEndedIterator + FusedIterator where K: 'a {
+        self.keys()
+    }
+
+    #[allow(refining_impl_trait)]
+    fn values<'a>(&'a self) -> impl ExactSizeIterator<Item = &V> + DoubleEndedIterator + FusedIterator where K: 'a {
+        self.values()
+    }
+
+    #[allow(refining_impl_trait)]
+    fn values_mut<'a>(&'a mut self) -> impl ExactSizeIterator<Item = &mut V> + DoubleEndedIterator + FusedIterator where K: 'a {
+        self.values_mut()
+    }
+
+    #[allow(refining_impl_trait)]
+    fn iter<'a>(&'a self) -> impl ExactSizeIterator<Item = (&'a K, &'a V)> + DoubleEndedIterator + FusedIterator where K: 'a, V: 'a {
+        self.iter()
+    }
+
+    #[allow(refining_impl_trait)]
+    fn iter_mut<'a>(&'a mut self) -> impl ExactSizeIterator<Item = (&'a K, &'a mut V)> + DoubleEndedIterator + FusedIterator where K: 'a, V: 'a {
+        self.iter_mut()
     }
 }
 
@@ -166,6 +221,69 @@ impl<T, const N: usize> DerefMut for ArrayVec<T, N> {
     }
 }
 
+impl<T, const N: usize> FromIterator<T> for ArrayVec<T, N> {
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        let mut vec = ArrayVec::new();
+        for item in iter {
+            vec.push(item);
+        }
+        vec
+    }
+}
+
+pub struct ArrayVecIntoIter<T, const N: usize> {
+    data: ManuallyDrop<ArrayVec<T, N>>,
+    next_index: usize,
+}
+
+impl<T, const N: usize> Iterator for ArrayVecIntoIter<T, N> {
+    type Item = T;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.next_index < self.data.len {
+            let item = unsafe { core::ptr::read(self.data.get_unchecked(self.next_index)) };
+            self.next_index += 1;
+            Some(item)
+        } else {
+            None
+        }
+    }
+}
+
+impl<T, const N: usize> ExactSizeIterator for ArrayVecIntoIter<T, N> {
+    fn len(&self) -> usize {
+        self.data.len - self.next_index
+    }
+}
+
+impl<T, const N: usize> DoubleEndedIterator for ArrayVecIntoIter<T, N> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        if self.next_index < self.data.len {
+            self.data.pop()
+        } else {
+            None
+        }
+    }
+}
+
+impl<T, const N: usize> FusedIterator for ArrayVecIntoIter<T, N> {}
+
+impl<T, const N: usize> Drop for ArrayVecIntoIter<T, N> {
+    fn drop(&mut self) {
+        while let Some(_) = self.next() {}
+    }
+}
+
+impl<T, const N: usize> IntoIterator for ArrayVec<T, N> {
+    type Item = T;
+    type IntoIter = ArrayVecIntoIter<T, N>;
+    fn into_iter(self) -> Self::IntoIter {
+        ArrayVecIntoIter {
+            data: ManuallyDrop::new(self),
+            next_index: 0,
+        }
+    }
+}
+
 /// A map based on fixed-length array
 /// O(1) insert, O(n) lookup
 #[derive(Debug)]
@@ -208,6 +326,49 @@ impl<K: Eq, V, const N: usize> Map<K, V> for ArrayMap<K, V, N> {
         let index = self.data.iter().position(|(k, _)| k == item)?;
         Some(self.data.swap_remove(index))
     }
+
+    #[allow(refining_impl_trait)]
+    fn keys<'a>(&'a self) -> impl ExactSizeIterator<Item = &K> + DoubleEndedIterator + FusedIterator where K: 'a {
+        self.data.iter().map(|(k, _)| k)
+    }
+
+    #[allow(refining_impl_trait)]
+    fn values<'a>(&'a self) -> impl ExactSizeIterator<Item = &V> + DoubleEndedIterator + FusedIterator where V: 'a {
+        self.data.iter().map(|(_, v)| v)
+    }
+
+    #[allow(refining_impl_trait)]
+    fn values_mut<'a>(&'a mut self) -> impl ExactSizeIterator<Item = &mut V> + DoubleEndedIterator + FusedIterator where V: 'a {
+        self.data.iter_mut().map(|(_, v)| v)
+    }
+
+    #[allow(refining_impl_trait)]
+    fn iter<'a>(&'a self) -> impl ExactSizeIterator<Item = (&'a K, &'a V)> + DoubleEndedIterator + FusedIterator where K: 'a, V: 'a {
+        self.data.iter().map(|(k, v)| (k, v))
+    }
+
+    #[allow(refining_impl_trait)]
+    fn iter_mut<'a>(&'a mut self) -> impl ExactSizeIterator<Item = (&'a K, &'a mut V)> + DoubleEndedIterator + FusedIterator where K: 'a, V: 'a {
+        self.data.iter_mut().map(|(k, v)| (&*k, v))
+    }
+}
+
+impl<K: Eq, V, const N: usize> FromIterator<(K, V)> for ArrayMap<K, V, N> {
+    fn from_iter<I: IntoIterator<Item = (K, V)>>(iter: I) -> Self {
+        let mut map = ArrayMap::new();
+        for (k, v) in iter {
+            map.insert(k, v);
+        }
+        map
+    }
+}
+
+impl<K: Eq, V, const N: usize> IntoIterator for ArrayMap<K, V, N> {
+    type Item = (K, V);
+    type IntoIter = ArrayVecIntoIter<(K, V), N>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.into_iter()
+    }
 }
 
 pub struct ArrayMapConstructor<const N: usize>;
@@ -216,14 +377,19 @@ impl<K: Eq, const N: usize> MapConstructor<K> for ArrayMapConstructor<N> {
     type Map<V> = ArrayMap<K, V, N>;
 }
 
-pub type ArraySet<T, const N: usize> = ArrayMap<T, (), N>;
-
-pub trait Set<T>: Default {
+pub trait Set<T>: Default + FromIterator<T> {
     fn contains(&self, item: &T) -> bool;
     /// Returns true if the item is newly inserted (i.e. true means the item was not present).
     fn insert(&mut self, item: T) -> bool;
     /// Returns true if the item is removed (i.e. true means the item was present).
     fn remove(&mut self, item: &T) -> bool;
+}
+
+pub trait SetConstructor<T> {
+    type Set: Set<T>;
+    fn new() -> Self::Set {
+        Default::default()
+    }
 }
 
 #[cfg(feature = "std")]
@@ -256,29 +422,66 @@ impl<T: Eq + Ord> Set<T> for std::collections::BTreeSet<T> {
     }
 }
 
-impl<T: Eq, const N: usize> Set<T> for ArrayMap<T, (), N> {
+#[repr(transparent)]
+pub struct ArraySet<T: Eq, const N: usize>(ArrayMap<T, (), N>);
+
+impl<T: Eq, const N: usize> ArraySet<T, N> {
+    pub fn new() -> Self {
+        ArraySet(ArrayMap::new())
+    }
+}
+
+impl<T: Eq, const N: usize> Default for ArraySet<T, N> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<T: Eq, const N: usize> FromIterator<T> for ArraySet<T, N> {
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        ArraySet(iter.into_iter().map(|k| (k, ())).collect())
+    }
+}
+
+impl<T: Eq, const N: usize> Set<T> for ArraySet<T, N> {
     fn contains(&self, item: &T) -> bool {
-        self.data.iter().any(|(k, _)| k == item)
+        self.0.contains_key(item)
     }
 
     fn insert(&mut self, item: T) -> bool {
         if self.contains(&item) {
             false
         } else {
-            self.data.push((item, ()));
+            self.0.insert(item, ());
             true
         }
     }
 
     fn remove(&mut self, item: &T) -> bool {
-        match self.data.iter().position(|(k, _)| k == item) {
-            Some(index) => {
-                self.data.swap_remove(index);
-                true
-            },
-            None => false,
-        }
+        self.0.remove(item).is_some()
     }
+}
+
+#[cfg(feature = "std")]
+pub struct HashSetConstructor<S: BuildHasher + Default = std::collections::hash_map::RandomState>(core::marker::PhantomData<S>);
+
+#[cfg(feature = "std")]
+impl<T: Eq + Hash, S: BuildHasher + Default> SetConstructor<T> for HashSetConstructor<S> {
+    type Set = std::collections::HashSet<T, S>;
+}
+
+#[cfg(feature = "std")]
+pub struct BTreeSetConstructor;
+
+#[cfg(feature = "std")]
+impl<T: Eq + Ord> SetConstructor<T> for BTreeSetConstructor {
+    type Set = std::collections::BTreeSet<T>;
+}
+
+pub struct ArraySetConstructor<const N: usize>;
+
+impl<T: Eq, const N: usize> SetConstructor<T> for ArraySetConstructor<N> {
+    type Set = ArraySet<T, N>;
 }
 
 // vec map
@@ -287,7 +490,6 @@ impl<T: Eq, const N: usize> Set<T> for ArrayMap<T, (), N> {
 // avl on fixed-length array
 // LRU cache with hash map and doubly linked list
 // LRU cache without index
-// Into- and From- Interators
 
 #[cfg(test)]
 mod tests {
@@ -327,8 +529,8 @@ mod tests {
 
     #[test]
     fn test_set_constructors() {
-        fn foo<S: Set<usize>>() {
-            let mut set = S::default();
+        fn foo<S: SetConstructor<usize>>() {
+            let mut set: S::Set = Default::default();
             set.insert(1);
             assert!(set.contains(&1));
             assert!(!set.contains(&2));
@@ -338,11 +540,23 @@ mod tests {
             assert!(!set.remove(&1));
         }
 
+        fn bar<S: for<'a> SetConstructor<&'a usize>>() {
+            let mut set = S::new();
+            set.insert(&1);
+            assert!(set.contains(&&1));
+            assert!(!set.contains(&&2));
+        }
+
         #[cfg(feature = "std")]
-        foo::<std::collections::HashSet<_>>();
+        foo::<HashSetConstructor>();
         #[cfg(feature = "std")]
-        foo::<std::collections::BTreeSet<_>>();
-        foo::<ArraySet<_, 3>>();
+        foo::<BTreeSetConstructor>();
+        foo::<ArraySetConstructor<3>>();
+        #[cfg(feature = "std")]
+        bar::<HashSetConstructor>();
+        #[cfg(feature = "std")]
+        bar::<BTreeSetConstructor>();
+        bar::<ArraySetConstructor<3>>();
     }
 
     #[test]
@@ -398,5 +612,15 @@ mod tests {
         map.get_mut(&3).map(|v| *v = 5);
         assert_eq!(map.get(&2), Some(&4));
         assert_eq!(map.get(&3), Some(&5));
+        assert_eq!(&map.keys().cloned().collect::<ArrayVec<_, 3>>()[..], &[1, 2, 3]);
+        assert_eq!(&map.values().cloned().collect::<ArrayVec<_, 3>>()[..], &[2, 4, 5]);
+        map.values_mut().for_each(|v| *v += 1);
+        assert_eq!(&map.iter().map(|(&k, &v)| (k, v)).collect::<ArrayVec<_, 3>>()[..], &[(1, 3), (2, 5), (3, 6)]);
+        map.remove(&1);
+        map.iter_mut().for_each(|(k, v)| *v += k);
+        let mut iter = map.into_iter();
+        assert_eq!(iter.len(), 2);
+        assert_eq!(iter.next_back(), Some((2, 7)));
+        assert_eq!(&iter.collect::<ArrayVec<_, 3>>()[..], &[(3, 9)]);
     }
 }
