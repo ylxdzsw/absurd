@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `collections.rs`."><title>collections.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-804b98a1284a310a.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="absurd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0-nightly (3d0e6bed6 2023-12-21)" data-channel="nightly" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `collections.rs`."><title>collections.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-804b98a1284a310a.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="absurd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0-nightly (d6d7a9386 2023-12-22)" data-channel="nightly" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -401,11 +401,235 @@
 <a href="#400" id="400">400</a>
 <a href="#401" id="401">401</a>
 <a href="#402" id="402">402</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>core::{hash::{Hash, BuildHasher}, mem::MaybeUninit, ops::{Deref, DerefMut}};
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
+<a href="#505" id="505">505</a>
+<a href="#506" id="506">506</a>
+<a href="#507" id="507">507</a>
+<a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>core::{hash::{Hash, BuildHasher}, mem::{MaybeUninit, ManuallyDrop}, ops::{Deref, DerefMut}, iter::FusedIterator};
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use </span>std::collections::{HashMap, BTreeMap};
 
-<span class="kw">pub trait </span>Map&lt;K, V&gt;: Default {
+<span class="kw">pub trait </span>Map&lt;K, V&gt;: Default + FromIterator&lt;(K, V)&gt; + IntoIterator&lt;Item = (K, V)&gt; {
     <span class="kw">fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>V&gt;;
     <span class="kw">fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>V&gt;;
     <span class="kw">fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: K, value: V);
@@ -416,6 +640,11 @@
         <span class="self">self</span>.remove_entry(item).map(|(<span class="kw">_</span>, v)| v)
     }
     <span class="kw">fn </span>remove_entry(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;(K, V)&gt;;
+    <span class="kw">fn </span>keys&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>K&gt; <span class="kw">where </span>K: <span class="lifetime">'a</span>;
+    <span class="kw">fn </span>values&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V&gt; <span class="kw">where </span>V: <span class="lifetime">'a</span>;
+    <span class="kw">fn </span>values_mut&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V&gt; <span class="kw">where </span>V: <span class="lifetime">'a</span>;
+    <span class="kw">fn </span>iter&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V)&gt; <span class="kw">where </span>K: <span class="lifetime">'a</span>, V: <span class="lifetime">'a</span>;
+    <span class="kw">fn </span>iter_mut&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V)&gt; <span class="kw">where </span>K: <span class="lifetime">'a</span>, V: <span class="lifetime">'a</span>;
 }
 
 <span class="kw">pub trait </span>MapConstructor&lt;K&gt; {
@@ -458,6 +687,31 @@
     <span class="kw">fn </span>remove_entry(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;(K, V)&gt; {
         <span class="self">self</span>.remove_entry(item)
     }
+
+    <span class="attr">#[allow(refining_impl_trait)]
+    </span><span class="kw">fn </span>keys&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = <span class="kw-2">&amp;</span>K&gt; + FusedIterator <span class="kw">where </span>K: <span class="lifetime">'a </span>{
+        <span class="self">self</span>.keys()
+    }
+
+    <span class="attr">#[allow(refining_impl_trait)]
+    </span><span class="kw">fn </span>values&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = <span class="kw-2">&amp;</span>V&gt; + FusedIterator <span class="kw">where </span>K: <span class="lifetime">'a </span>{
+        <span class="self">self</span>.values()
+    }
+
+    <span class="attr">#[allow(refining_impl_trait)]
+    </span><span class="kw">fn </span>values_mut&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = <span class="kw-2">&amp;mut </span>V&gt; + FusedIterator <span class="kw">where </span>K: <span class="lifetime">'a </span>{
+        <span class="self">self</span>.values_mut()
+    }
+
+    <span class="attr">#[allow(refining_impl_trait)]
+    </span><span class="kw">fn </span>iter&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V)&gt; + FusedIterator <span class="kw">where </span>K: <span class="lifetime">'a</span>, V: <span class="lifetime">'a </span>{
+        <span class="self">self</span>.iter()
+    }
+
+    <span class="attr">#[allow(refining_impl_trait)]
+    </span><span class="kw">fn </span>iter_mut&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V)&gt; + FusedIterator <span class="kw">where </span>K: <span class="lifetime">'a</span>, V: <span class="lifetime">'a </span>{
+        <span class="self">self</span>.iter_mut()
+    }
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
@@ -492,6 +746,31 @@
 
     <span class="kw">fn </span>remove_entry(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;(K, V)&gt; {
         <span class="self">self</span>.remove_entry(item)
+    }
+
+    <span class="attr">#[allow(refining_impl_trait)]
+    </span><span class="kw">fn </span>keys&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = <span class="kw-2">&amp;</span>K&gt; + DoubleEndedIterator + FusedIterator <span class="kw">where </span>K: <span class="lifetime">'a </span>{
+        <span class="self">self</span>.keys()
+    }
+
+    <span class="attr">#[allow(refining_impl_trait)]
+    </span><span class="kw">fn </span>values&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = <span class="kw-2">&amp;</span>V&gt; + DoubleEndedIterator + FusedIterator <span class="kw">where </span>K: <span class="lifetime">'a </span>{
+        <span class="self">self</span>.values()
+    }
+
+    <span class="attr">#[allow(refining_impl_trait)]
+    </span><span class="kw">fn </span>values_mut&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = <span class="kw-2">&amp;mut </span>V&gt; + DoubleEndedIterator + FusedIterator <span class="kw">where </span>K: <span class="lifetime">'a </span>{
+        <span class="self">self</span>.values_mut()
+    }
+
+    <span class="attr">#[allow(refining_impl_trait)]
+    </span><span class="kw">fn </span>iter&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V)&gt; + DoubleEndedIterator + FusedIterator <span class="kw">where </span>K: <span class="lifetime">'a</span>, V: <span class="lifetime">'a </span>{
+        <span class="self">self</span>.iter()
+    }
+
+    <span class="attr">#[allow(refining_impl_trait)]
+    </span><span class="kw">fn </span>iter_mut&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V)&gt; + DoubleEndedIterator + FusedIterator <span class="kw">where </span>K: <span class="lifetime">'a</span>, V: <span class="lifetime">'a </span>{
+        <span class="self">self</span>.iter_mut()
     }
 }
 
@@ -569,6 +848,69 @@
     </span>}
 }
 
+<span class="kw">impl</span>&lt;T, <span class="kw">const </span>N: usize&gt; FromIterator&lt;T&gt; <span class="kw">for </span>ArrayVec&lt;T, N&gt; {
+    <span class="kw">fn </span>from_iter&lt;I: IntoIterator&lt;Item = T&gt;&gt;(iter: I) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>vec = ArrayVec::new();
+        <span class="kw">for </span>item <span class="kw">in </span>iter {
+            vec.push(item);
+        }
+        vec
+    }
+}
+
+<span class="kw">pub struct </span>ArrayVecIntoIter&lt;T, <span class="kw">const </span>N: usize&gt; {
+    data: ManuallyDrop&lt;ArrayVec&lt;T, N&gt;&gt;,
+    next_index: usize,
+}
+
+<span class="kw">impl</span>&lt;T, <span class="kw">const </span>N: usize&gt; Iterator <span class="kw">for </span>ArrayVecIntoIter&lt;T, N&gt; {
+    <span class="kw">type </span>Item = T;
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="kw">if </span><span class="self">self</span>.next_index &lt; <span class="self">self</span>.data.len {
+            <span class="kw">let </span>item = <span class="kw">unsafe </span>{ core::ptr::read(<span class="self">self</span>.data.get_unchecked(<span class="self">self</span>.next_index)) };
+            <span class="self">self</span>.next_index += <span class="number">1</span>;
+            <span class="prelude-val">Some</span>(item)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
+    }
+}
+
+<span class="kw">impl</span>&lt;T, <span class="kw">const </span>N: usize&gt; ExactSizeIterator <span class="kw">for </span>ArrayVecIntoIter&lt;T, N&gt; {
+    <span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.data.len - <span class="self">self</span>.next_index
+    }
+}
+
+<span class="kw">impl</span>&lt;T, <span class="kw">const </span>N: usize&gt; DoubleEndedIterator <span class="kw">for </span>ArrayVecIntoIter&lt;T, N&gt; {
+    <span class="kw">fn </span>next_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="kw">if </span><span class="self">self</span>.next_index &lt; <span class="self">self</span>.data.len {
+            <span class="self">self</span>.data.pop()
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
+    }
+}
+
+<span class="kw">impl</span>&lt;T, <span class="kw">const </span>N: usize&gt; FusedIterator <span class="kw">for </span>ArrayVecIntoIter&lt;T, N&gt; {}
+
+<span class="kw">impl</span>&lt;T, <span class="kw">const </span>N: usize&gt; Drop <span class="kw">for </span>ArrayVecIntoIter&lt;T, N&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(<span class="kw">_</span>) = <span class="self">self</span>.next() {}
+    }
+}
+
+<span class="kw">impl</span>&lt;T, <span class="kw">const </span>N: usize&gt; IntoIterator <span class="kw">for </span>ArrayVec&lt;T, N&gt; {
+    <span class="kw">type </span>Item = T;
+    <span class="kw">type </span>IntoIter = ArrayVecIntoIter&lt;T, N&gt;;
+    <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
+        ArrayVecIntoIter {
+            data: ManuallyDrop::new(<span class="self">self</span>),
+            next_index: <span class="number">0</span>,
+        }
+    }
+}
+
 <span class="doccomment">/// A map based on fixed-length array
 /// O(1) insert, O(n) lookup
 </span><span class="attr">#[derive(Debug)]
@@ -611,6 +953,49 @@
         <span class="kw">let </span>index = <span class="self">self</span>.data.iter().position(|(k, <span class="kw">_</span>)| k == item)<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>(<span class="self">self</span>.data.swap_remove(index))
     }
+
+    <span class="attr">#[allow(refining_impl_trait)]
+    </span><span class="kw">fn </span>keys&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = <span class="kw-2">&amp;</span>K&gt; + DoubleEndedIterator + FusedIterator <span class="kw">where </span>K: <span class="lifetime">'a </span>{
+        <span class="self">self</span>.data.iter().map(|(k, <span class="kw">_</span>)| k)
+    }
+
+    <span class="attr">#[allow(refining_impl_trait)]
+    </span><span class="kw">fn </span>values&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = <span class="kw-2">&amp;</span>V&gt; + DoubleEndedIterator + FusedIterator <span class="kw">where </span>V: <span class="lifetime">'a </span>{
+        <span class="self">self</span>.data.iter().map(|(<span class="kw">_</span>, v)| v)
+    }
+
+    <span class="attr">#[allow(refining_impl_trait)]
+    </span><span class="kw">fn </span>values_mut&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = <span class="kw-2">&amp;mut </span>V&gt; + DoubleEndedIterator + FusedIterator <span class="kw">where </span>V: <span class="lifetime">'a </span>{
+        <span class="self">self</span>.data.iter_mut().map(|(<span class="kw">_</span>, v)| v)
+    }
+
+    <span class="attr">#[allow(refining_impl_trait)]
+    </span><span class="kw">fn </span>iter&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V)&gt; + DoubleEndedIterator + FusedIterator <span class="kw">where </span>K: <span class="lifetime">'a</span>, V: <span class="lifetime">'a </span>{
+        <span class="self">self</span>.data.iter().map(|(k, v)| (k, v))
+    }
+
+    <span class="attr">#[allow(refining_impl_trait)]
+    </span><span class="kw">fn </span>iter_mut&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>ExactSizeIterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V)&gt; + DoubleEndedIterator + FusedIterator <span class="kw">where </span>K: <span class="lifetime">'a</span>, V: <span class="lifetime">'a </span>{
+        <span class="self">self</span>.data.iter_mut().map(|(k, v)| (<span class="kw-2">&amp;*</span>k, v))
+    }
+}
+
+<span class="kw">impl</span>&lt;K: Eq, V, <span class="kw">const </span>N: usize&gt; FromIterator&lt;(K, V)&gt; <span class="kw">for </span>ArrayMap&lt;K, V, N&gt; {
+    <span class="kw">fn </span>from_iter&lt;I: IntoIterator&lt;Item = (K, V)&gt;&gt;(iter: I) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>map = ArrayMap::new();
+        <span class="kw">for </span>(k, v) <span class="kw">in </span>iter {
+            map.insert(k, v);
+        }
+        map
+    }
+}
+
+<span class="kw">impl</span>&lt;K: Eq, V, <span class="kw">const </span>N: usize&gt; IntoIterator <span class="kw">for </span>ArrayMap&lt;K, V, N&gt; {
+    <span class="kw">type </span>Item = (K, V);
+    <span class="kw">type </span>IntoIter = ArrayVecIntoIter&lt;(K, V), N&gt;;
+    <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
+        <span class="self">self</span>.data.into_iter()
+    }
 }
 
 <span class="kw">pub struct </span>ArrayMapConstructor&lt;<span class="kw">const </span>N: usize&gt;;
@@ -619,14 +1004,19 @@
     <span class="kw">type </span>Map&lt;V&gt; = ArrayMap&lt;K, V, N&gt;;
 }
 
-<span class="kw">pub type </span>ArraySet&lt;T, <span class="kw">const </span>N: usize&gt; = ArrayMap&lt;T, (), N&gt;;
-
-<span class="kw">pub trait </span>Set&lt;T&gt;: Default {
+<span class="kw">pub trait </span>Set&lt;T&gt;: Default + FromIterator&lt;T&gt; {
     <span class="kw">fn </span>contains(<span class="kw-2">&amp;</span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>T) -&gt; bool;
     <span class="doccomment">/// Returns true if the item is newly inserted (i.e. true means the item was not present).
     </span><span class="kw">fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: T) -&gt; bool;
     <span class="doccomment">/// Returns true if the item is removed (i.e. true means the item was present).
     </span><span class="kw">fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>T) -&gt; bool;
+}
+
+<span class="kw">pub trait </span>SetConstructor&lt;T&gt; {
+    <span class="kw">type </span>Set: Set&lt;T&gt;;
+    <span class="kw">fn </span>new() -&gt; <span class="self">Self</span>::Set {
+        Default::default()
+    }
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
@@ -659,29 +1049,66 @@
     }
 }
 
-<span class="kw">impl</span>&lt;T: Eq, <span class="kw">const </span>N: usize&gt; Set&lt;T&gt; <span class="kw">for </span>ArrayMap&lt;T, (), N&gt; {
+<span class="attr">#[repr(transparent)]
+</span><span class="kw">pub struct </span>ArraySet&lt;T: Eq, <span class="kw">const </span>N: usize&gt;(ArrayMap&lt;T, (), N&gt;);
+
+<span class="kw">impl</span>&lt;T: Eq, <span class="kw">const </span>N: usize&gt; ArraySet&lt;T, N&gt; {
+    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        ArraySet(ArrayMap::new())
+    }
+}
+
+<span class="kw">impl</span>&lt;T: Eq, <span class="kw">const </span>N: usize&gt; Default <span class="kw">for </span>ArraySet&lt;T, N&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new()
+    }
+}
+
+<span class="kw">impl</span>&lt;T: Eq, <span class="kw">const </span>N: usize&gt; FromIterator&lt;T&gt; <span class="kw">for </span>ArraySet&lt;T, N&gt; {
+    <span class="kw">fn </span>from_iter&lt;I: IntoIterator&lt;Item = T&gt;&gt;(iter: I) -&gt; <span class="self">Self </span>{
+        ArraySet(iter.into_iter().map(|k| (k, ())).collect())
+    }
+}
+
+<span class="kw">impl</span>&lt;T: Eq, <span class="kw">const </span>N: usize&gt; Set&lt;T&gt; <span class="kw">for </span>ArraySet&lt;T, N&gt; {
     <span class="kw">fn </span>contains(<span class="kw-2">&amp;</span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>T) -&gt; bool {
-        <span class="self">self</span>.data.iter().any(|(k, <span class="kw">_</span>)| k == item)
+        <span class="self">self</span>.<span class="number">0</span>.contains_key(item)
     }
 
     <span class="kw">fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: T) -&gt; bool {
         <span class="kw">if </span><span class="self">self</span>.contains(<span class="kw-2">&amp;</span>item) {
             <span class="bool-val">false
         </span>} <span class="kw">else </span>{
-            <span class="self">self</span>.data.push((item, ()));
+            <span class="self">self</span>.<span class="number">0</span>.insert(item, ());
             <span class="bool-val">true
         </span>}
     }
 
     <span class="kw">fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>T) -&gt; bool {
-        <span class="kw">match </span><span class="self">self</span>.data.iter().position(|(k, <span class="kw">_</span>)| k == item) {
-            <span class="prelude-val">Some</span>(index) =&gt; {
-                <span class="self">self</span>.data.swap_remove(index);
-                <span class="bool-val">true
-            </span>},
-            <span class="prelude-val">None </span>=&gt; <span class="bool-val">false</span>,
-        }
+        <span class="self">self</span>.<span class="number">0</span>.remove(item).is_some()
     }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub struct </span>HashSetConstructor&lt;S: BuildHasher + Default = std::collections::hash_map::RandomState&gt;(core::marker::PhantomData&lt;S&gt;);
+
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">impl</span>&lt;T: Eq + Hash, S: BuildHasher + Default&gt; SetConstructor&lt;T&gt; <span class="kw">for </span>HashSetConstructor&lt;S&gt; {
+    <span class="kw">type </span>Set = std::collections::HashSet&lt;T, S&gt;;
+}
+
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub struct </span>BTreeSetConstructor;
+
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">impl</span>&lt;T: Eq + Ord&gt; SetConstructor&lt;T&gt; <span class="kw">for </span>BTreeSetConstructor {
+    <span class="kw">type </span>Set = std::collections::BTreeSet&lt;T&gt;;
+}
+
+<span class="kw">pub struct </span>ArraySetConstructor&lt;<span class="kw">const </span>N: usize&gt;;
+
+<span class="kw">impl</span>&lt;T: Eq, <span class="kw">const </span>N: usize&gt; SetConstructor&lt;T&gt; <span class="kw">for </span>ArraySetConstructor&lt;N&gt; {
+    <span class="kw">type </span>Set = ArraySet&lt;T, N&gt;;
 }
 
 <span class="comment">// vec map
@@ -690,7 +1117,6 @@
 // avl on fixed-length array
 // LRU cache with hash map and doubly linked list
 // LRU cache without index
-// Into- and From- Interators
 
 </span><span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
@@ -730,8 +1156,8 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_set_constructors() {
-        <span class="kw">fn </span>foo&lt;S: Set&lt;usize&gt;&gt;() {
-            <span class="kw">let </span><span class="kw-2">mut </span>set = S::default();
+        <span class="kw">fn </span>foo&lt;S: SetConstructor&lt;usize&gt;&gt;() {
+            <span class="kw">let </span><span class="kw-2">mut </span>set: S::Set = Default::default();
             set.insert(<span class="number">1</span>);
             <span class="macro">assert!</span>(set.contains(<span class="kw-2">&amp;</span><span class="number">1</span>));
             <span class="macro">assert!</span>(!set.contains(<span class="kw-2">&amp;</span><span class="number">2</span>));
@@ -741,11 +1167,23 @@
             <span class="macro">assert!</span>(!set.remove(<span class="kw-2">&amp;</span><span class="number">1</span>));
         }
 
+        <span class="kw">fn </span>bar&lt;S: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; SetConstructor&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>usize&gt;&gt;() {
+            <span class="kw">let </span><span class="kw-2">mut </span>set = S::new();
+            set.insert(<span class="kw-2">&amp;</span><span class="number">1</span>);
+            <span class="macro">assert!</span>(set.contains(&amp;&amp;<span class="number">1</span>));
+            <span class="macro">assert!</span>(!set.contains(&amp;&amp;<span class="number">2</span>));
+        }
+
         <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-        </span>foo::&lt;std::collections::HashSet&lt;<span class="kw">_</span>&gt;&gt;();
+        </span>foo::&lt;HashSetConstructor&gt;();
         <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-        </span>foo::&lt;std::collections::BTreeSet&lt;<span class="kw">_</span>&gt;&gt;();
-        foo::&lt;ArraySet&lt;<span class="kw">_</span>, <span class="number">3</span>&gt;&gt;();
+        </span>foo::&lt;BTreeSetConstructor&gt;();
+        foo::&lt;ArraySetConstructor&lt;<span class="number">3</span>&gt;&gt;();
+        <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+        </span>bar::&lt;HashSetConstructor&gt;();
+        <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+        </span>bar::&lt;BTreeSetConstructor&gt;();
+        bar::&lt;ArraySetConstructor&lt;<span class="number">3</span>&gt;&gt;();
     }
 
     <span class="attr">#[test]
@@ -801,6 +1239,16 @@
         map.get_mut(<span class="kw-2">&amp;</span><span class="number">3</span>).map(|v| <span class="kw-2">*</span>v = <span class="number">5</span>);
         <span class="macro">assert_eq!</span>(map.get(<span class="kw-2">&amp;</span><span class="number">2</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">4</span>));
         <span class="macro">assert_eq!</span>(map.get(<span class="kw-2">&amp;</span><span class="number">3</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">5</span>));
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>map.keys().cloned().collect::&lt;ArrayVec&lt;<span class="kw">_</span>, <span class="number">3</span>&gt;&gt;()[..], <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>map.values().cloned().collect::&lt;ArrayVec&lt;<span class="kw">_</span>, <span class="number">3</span>&gt;&gt;()[..], <span class="kw-2">&amp;</span>[<span class="number">2</span>, <span class="number">4</span>, <span class="number">5</span>]);
+        map.values_mut().for_each(|v| <span class="kw-2">*</span>v += <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>map.iter().map(|(<span class="kw-2">&amp;</span>k, <span class="kw-2">&amp;</span>v)| (k, v)).collect::&lt;ArrayVec&lt;<span class="kw">_</span>, <span class="number">3</span>&gt;&gt;()[..], <span class="kw-2">&amp;</span>[(<span class="number">1</span>, <span class="number">3</span>), (<span class="number">2</span>, <span class="number">5</span>), (<span class="number">3</span>, <span class="number">6</span>)]);
+        map.remove(<span class="kw-2">&amp;</span><span class="number">1</span>);
+        map.iter_mut().for_each(|(k, v)| <span class="kw-2">*</span>v += k);
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = map.into_iter();
+        <span class="macro">assert_eq!</span>(iter.len(), <span class="number">2</span>);
+        <span class="macro">assert_eq!</span>(iter.next_back(), <span class="prelude-val">Some</span>((<span class="number">2</span>, <span class="number">7</span>)));
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>iter.collect::&lt;ArrayVec&lt;<span class="kw">_</span>, <span class="number">3</span>&gt;&gt;()[..], <span class="kw-2">&amp;</span>[(<span class="number">3</span>, <span class="number">9</span>)]);
     }
 }
 </code></pre></div></section></main></body></html>
