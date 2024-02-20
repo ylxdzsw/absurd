@@ -1,7 +1,7 @@
 #[macro_export]
 macro_rules! new_usize_type {
-    ($visibility: vis $type_name: ident) => {
-        #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    ($visibility: vis $type_name: ident $(, $($traits: ident)*)?) => {
+        #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash $($(, $traits)*)?)]
         #[repr(transparent)]
         $visibility struct $type_name(pub usize);
 
