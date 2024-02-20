@@ -62,7 +62,7 @@
 </pre></div><pre class="rust"><code><span class="attr">#[macro_export]
 </span><span class="macro">macro_rules! </span>new_usize_type {
     (<span class="macro-nonterminal">$visibility</span>: vis <span class="macro-nonterminal">$type_name</span>: ident $(, $(<span class="macro-nonterminal">$traits</span>: ident)<span class="kw-2">*</span>)<span class="question-mark">?</span>) =&gt; {
-        <span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash $(, <span class="macro-nonterminal">$traits</span>)<span class="kw-2">*</span>)]
+        <span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash $($(, <span class="macro-nonterminal">$traits</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>)]
         #[repr(transparent)]
         </span><span class="macro-nonterminal">$visibility </span><span class="kw">struct </span><span class="macro-nonterminal">$type_name</span>(<span class="kw">pub </span>usize);
 
