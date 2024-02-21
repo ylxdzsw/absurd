@@ -231,6 +231,12 @@ impl<T, const N: usize> FromIterator<T> for ArrayVec<T, N> {
     }
 }
 
+impl<T, const N: usize> Clone for ArrayVec<T, N> where T: Clone {
+    fn clone(&self) -> Self {
+        self.iter().cloned().collect()
+    }
+}
+
 pub struct ArrayVecIntoIter<T, const N: usize> {
     data: ManuallyDrop<ArrayVec<T, N>>,
     next_index: usize,
@@ -286,7 +292,7 @@ impl<T, const N: usize> IntoIterator for ArrayVec<T, N> {
 
 /// A map based on fixed-length array
 /// O(1) insert, O(n) lookup
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ArrayMap<K: Eq, V, const N: usize> {
     data: ArrayVec<(K, V), N>,
 }
@@ -618,7 +624,8 @@ mod tests {
         assert_eq!(&map.iter().map(|(&k, &v)| (k, v)).collect::<ArrayVec<_, 3>>()[..], &[(1, 3), (2, 5), (3, 6)]);
         map.remove(&1);
         map.iter_mut().for_each(|(k, v)| *v += k);
-        let mut iter = map.into_iter();
+        let cloned = map.clone();
+        let mut iter = cloned.into_iter();
         assert_eq!(iter.len(), 2);
         assert_eq!(iter.next_back(), Some((2, 7)));
         assert_eq!(&iter.collect::<ArrayVec<_, 3>>()[..], &[(3, 9)]);
