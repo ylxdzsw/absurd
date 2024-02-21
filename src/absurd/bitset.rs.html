@@ -242,7 +242,7 @@
 /// `S` is the storage type, can either be `Vec&lt;E&gt;` or `[E; N]`
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 #[repr(transparent)]
-</span><span class="kw">pub struct </span>BitSet&lt;T: Into&lt;usize&gt; + Copy, S&gt;(S, core::marker::PhantomData&lt;T&gt;);
+</span><span class="kw">pub struct </span>BitSet&lt;T: Into&lt;usize&gt; + Copy, S = Vec&lt;u32&gt;&gt;(S, core::marker::PhantomData&lt;T&gt;);
 
 <span class="kw">impl</span>&lt;T: Into&lt;usize&gt; + Copy, S&gt; BitSet&lt;T, S&gt; {
     <span class="kw">pub fn </span>with_storage(storage: S) -&gt; <span class="self">Self </span>{
@@ -402,7 +402,7 @@
     <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     #[test]
     </span><span class="kw">fn </span>test_bitset() {
-        <span class="kw">let </span><span class="kw-2">mut </span>set: BitSet&lt;<span class="kw">_</span>, Vec&lt;u32&gt;&gt; = Default::default();
+        <span class="kw">let </span><span class="kw-2">mut </span>set: BitSet&lt;<span class="kw">_</span>&gt; = Default::default();
         <span class="macro">assert!</span>(!set.contains(<span class="kw-2">&amp;</span><span class="number">5usize</span>));
         <span class="macro">assert!</span>(set.insert(<span class="number">5usize</span>));
         <span class="macro">assert!</span>(!set.insert(<span class="number">5usize</span>));
