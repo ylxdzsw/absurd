@@ -13,9 +13,15 @@ macro_rules! bit_size_of {
 /// `E`: FullBitPrimitive + Integer + BitOps is the element type of the storage
 /// `T`: Into<usize> + Copy is the element type of the set
 /// `S` is the storage type, can either be `Vec<E>` or `[E; N]`
+#[cfg(feature = "std")]
 #[derive(Debug, Clone, Copy)]
 #[repr(transparent)]
 pub struct BitSet<T: Into<usize> + Copy, S = Vec<u32>>(S, core::marker::PhantomData<T>);
+
+#[cfg(not(feature = "std"))]
+#[derive(Debug, Clone, Copy)]
+#[repr(transparent)]
+pub struct BitSet<T: Into<usize> + Copy, S>(S, core::marker::PhantomData<T>);
 
 impl<T: Into<usize> + Copy, S> BitSet<T, S> {
     pub fn with_storage(storage: S) -> Self {
@@ -154,6 +160,10 @@ impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy, const N: usi
     }
 }
 
+#[cfg(feature = "std")]
+pub struct BitSetConstructor<T = Vec<u32>>(core::marker::PhantomData<T>);
+
+#[cfg(not(feature = "std"))]
 pub struct BitSetConstructor<T>(core::marker::PhantomData<T>);
 
 #[cfg(feature = "std")]
@@ -214,6 +224,8 @@ mod tests {
         foo::<ArraySet<Foo, 3>>();
         #[cfg(feature = "std")]
         bar::<BitSetConstructor<Vec<u32>>>();
+        #[cfg(feature = "std")]
+        bar::<BitSetConstructor>();
         bar::<BitSetConstructor<[u8; 256]>>();
         bar::<BitSetConstructor<[isize; 32]>>();
         #[cfg(feature = "std")]
