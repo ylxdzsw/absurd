@@ -15,7 +15,7 @@ macro_rules! bit_size_of {
 /// `S` is the storage type, can either be `Vec<E>` or `[E; N]`
 #[derive(Debug, Clone, Copy)]
 #[repr(transparent)]
-pub struct BitSet<T: Into<usize> + Copy, S>(S, core::marker::PhantomData<T>);
+pub struct BitSet<T: Into<usize> + Copy, S = Vec<u32>>(S, core::marker::PhantomData<T>);
 
 impl<T: Into<usize> + Copy, S> BitSet<T, S> {
     pub fn with_storage(storage: S) -> Self {
@@ -175,7 +175,7 @@ mod tests {
     #[cfg(feature = "std")]
     #[test]
     fn test_bitset() {
-        let mut set: BitSet<_, Vec<u32>> = Default::default();
+        let mut set: BitSet<_> = Default::default();
         assert!(!set.contains(&5usize));
         assert!(set.insert(5usize));
         assert!(!set.insert(5usize));
