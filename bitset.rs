@@ -45,6 +45,11 @@ pub trait BitSetView<E: FullBitPrimitive + Integer + BitOps>: AsRef<[E]> + AsMut
     fn bit_unset(&mut self, element_index: usize, bit_offset: usize) {
         self.as_mut()[element_index] &= !(E::one() << bit_offset);
     }
+
+    fn bit_is_subset_of(&self, other: &Self) -> bool {
+        self.as_ref()[other.as_ref().len()..].iter().all(|&x| x == E::zero()) &&
+        self.as_ref().iter().zip(other.as_ref().iter()).all(|(a, b)| *a & *b == *a)
+    }
 }
 
 impl<E: FullBitPrimitive + Integer + BitOps> BitSetView<E> for [E] {}
@@ -111,6 +116,13 @@ impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy> FromIterator
     }
 }
 
+#[cfg(feature = "std")]
+impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy> BitSet<T, Vec<E>> {
+    pub fn is_subset_of(&self, other: &Self) -> bool {
+        self.0.bit_is_subset_of(&other.0)
+    }
+}
+
 impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy, const N: usize> BitSet<T, [E; N]> {
     pub fn new() -> Self {
         BitSet::with_storage([E::zero(); N])
@@ -157,6 +169,12 @@ impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy, const N: usi
             return false;
         }
         self.0.bit_get(element_index, bit_offset)
+    }
+}
+
+impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy, const N: usize> BitSet<T, [E; N]> {
+    pub fn is_subset_of(&self, other: &Self) -> bool {
+        self.0.bit_is_subset_of(&other.0)
     }
 }
 
@@ -233,5 +251,29 @@ mod tests {
         #[cfg(feature = "std")]
         bar::<BTreeSetConstructor>();
         bar::<ArraySetConstructor<3>>();
+    }
+
+    #[test]
+    fn test_bitset_subset() {
+        let mut a: BitSet<usize, [u32; 4]> = Default::default();
+        let mut b: BitSet<usize, [u32; 4]> = Default::default();
+        assert!(a.is_subset_of(&b));
+
+        a.insert(5);
+        assert!(!a.is_subset_of(&b));
+        assert!(b.is_subset_of(&a));
+
+        b.insert(5);
+        assert!(a.is_subset_of(&b));
+        assert!(b.is_subset_of(&a));
+
+        b.insert(6);
+        assert!(a.is_subset_of(&b));
+        assert!(!b.is_subset_of(&a));
+
+        a.insert(6);
+        a.remove(&5);
+        assert!(a.is_subset_of(&b));
+        assert!(!b.is_subset_of(&a));
     }
 }
