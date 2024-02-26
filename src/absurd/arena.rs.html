@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `arena.rs`."><title>arena.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-e935ef01ae1c1829.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="absurd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.78.0-nightly (bb594538f 2024-02-20)" data-channel="nightly" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-c37d3936c59ababd.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `arena.rs`."><title>arena.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-e935ef01ae1c1829.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="absurd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.78.0-nightly (0ecbd0605 2024-02-25)" data-channel="nightly" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-c37d3936c59ababd.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
             <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../absurd/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
@@ -147,10 +147,43 @@
 <a href="#145" id="145">145</a>
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>core::mem::MaybeUninit;
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>core::mem::{ManuallyDrop, MaybeUninit};
 <span class="kw">use </span>core::cell::UnsafeCell;
-
-<span class="kw">use crate</span>::{size_of, align_of};
 
 <span class="doccomment">/// `N` is the initial chunk size (in bytes)
 /// `C` is the maximum number of chunks
@@ -199,21 +232,39 @@
         <span class="kw">unsafe </span>{ ptr.assume_init_mut() }
     }
 
-    <span class="kw">pub fn </span>alloc_uninitialized&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>MaybeUninit&lt;T&gt; {
-        <span class="macro">assert!</span>(<span class="macro">size_of!</span>(T) &gt; <span class="number">0</span>, <span class="string">"Zero sized types are not supported"</span>); <span class="comment">// not sure
-        </span><span class="kw">loop </span>{
-            <span class="kw">let </span>inner = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span><span class="self">self</span>.inner.get() };
-            <span class="kw">let </span>align_offset = inner.ptr.align_offset(<span class="macro">align_of!</span>(T));
-            <span class="kw">if </span>align_offset + <span class="macro">size_of!</span>(T) &gt; inner.capacity {
-                <span class="self">self</span>.grow();
-                <span class="kw">continue</span>;
-            }
+    <span class="kw">pub fn </span>calloc&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, value: Vec&lt;T&gt;) -&gt; <span class="kw-2">&amp;mut </span>[T] {
+        <span class="kw">let </span>ptr = <span class="self">self</span>.calloc_uninitialized::&lt;T&gt;(value.len());
+        <span class="kw">unsafe </span>{ core::ptr::copy_nonoverlapping(value.as_ptr(), ptr.as_mut_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>T, value.len()) };
+        <span class="kw">let _</span>: Vec&lt;ManuallyDrop&lt;T&gt;&gt; = <span class="kw">unsafe </span>{ core::mem::transmute(value) };
+        <span class="kw">unsafe </span>{ core::mem::transmute(ptr) }
+    }
 
-            <span class="kw">let </span>ptr = <span class="kw">unsafe </span>{ inner.ptr.add(align_offset) };
-            inner.ptr = <span class="kw">unsafe </span>{ inner.ptr.add(align_offset + <span class="macro">size_of!</span>(T)) };
-            inner.capacity -= align_offset + <span class="macro">size_of!</span>(T);
-            <span class="kw">return unsafe </span>{ <span class="kw-2">&amp;mut *</span>ptr.cast() };
+    <span class="kw">unsafe fn </span>alloc_layout(<span class="kw-2">&amp;</span><span class="self">self</span>, layout: core::alloc::Layout) -&gt; <span class="kw-2">*mut </span>u8 {
+        <span class="kw">loop </span>{
+            <span class="kw">let </span>inner = <span class="kw-2">&amp;mut *</span><span class="self">self</span>.inner.get();
+            <span class="kw">let </span>align_offset = inner.ptr.align_offset(layout.align());
+            <span class="kw">if </span>align_offset + layout.size() &gt; inner.capacity {
+                <span class="self">self</span>.grow();
+                <span class="kw">continue
+            </span>}
+
+            <span class="kw">let </span>ptr = inner.ptr.add(align_offset);
+            inner.ptr = inner.ptr.add(align_offset + layout.size());
+            inner.capacity -= align_offset + layout.size();
+            <span class="kw">return </span>ptr
         }
+    }
+
+    <span class="kw">pub fn </span>alloc_uninitialized&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>MaybeUninit&lt;T&gt; {
+        <span class="kw">let </span>layout = core::alloc::Layout::new::&lt;T&gt;();
+        <span class="kw">let </span>ptr = <span class="kw">unsafe </span>{ <span class="self">self</span>.alloc_layout(layout) };
+        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>ptr.cast() }
+    }
+
+    <span class="kw">pub fn </span>calloc_uninitialized&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, count: usize) -&gt; <span class="kw-2">&amp;mut </span>[MaybeUninit&lt;T&gt;] {
+        <span class="kw">let </span>layout = core::alloc::Layout::array::&lt;T&gt;(count).unwrap();
+        <span class="kw">let </span>ptr = <span class="kw">unsafe </span>{ <span class="self">self</span>.alloc_layout(layout) };
+        <span class="kw">unsafe </span>{ core::slice::from_raw_parts_mut(ptr.cast(), count) }
     }
 }
 
@@ -263,6 +314,25 @@
             <span class="macro">assert_eq!</span>(x.assume_init(), <span class="number">42</span>);
             <span class="macro">assert_eq!</span>(y.assume_init(), <span class="number">43</span>);
         }
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_arena_calloc() {
+        <span class="kw">let </span>arena: Arena = Arena::new();
+        <span class="kw">let </span>x = arena.calloc(<span class="macro">vec!</span>[<span class="number">42</span>, <span class="number">43</span>]);
+        <span class="macro">assert_eq!</span>(x, <span class="kw-2">&amp;</span>[<span class="number">42</span>, <span class="number">43</span>]);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_arena_calloc_uninitialized() {
+        <span class="kw">let </span>arena: Arena = Arena::new();
+        <span class="kw">let </span>x = arena.calloc_uninitialized::&lt;bool&gt;(<span class="number">2</span>);
+        <span class="kw">let </span>x: <span class="kw-2">&amp;mut </span>[bool] = <span class="kw">unsafe </span>{
+            x[<span class="number">0</span>].write(<span class="bool-val">true</span>);
+            x[<span class="number">1</span>].write(<span class="bool-val">false</span>);
+            core::mem::transmute(x)
+        };
+        <span class="macro">assert_eq!</span>(x, <span class="kw-2">&amp;</span>[<span class="bool-val">true</span>, <span class="bool-val">false</span>]);
     }
 
     <span class="attr">#[test]
