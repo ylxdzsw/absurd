@@ -55,6 +55,19 @@ impl<const N: usize, const C: usize> Arena<N, C> {
         unsafe { core::mem::transmute(ptr) }
     }
 
+    pub fn collect<T>(&self, iter: impl ExactSizeIterator<Item = T>) -> &mut [T] {
+        let ptr = self.calloc_uninitialized::<T>(iter.len());
+        let mut actual_len = 0;
+        for (i, value) in iter.enumerate() {
+            if i >= ptr.len() {
+                panic!("Iterator is longer than the allocated slice");
+            }
+            ptr[i].write(value);
+            actual_len = i + 1;
+        }
+        unsafe { core::mem::transmute(&mut ptr[..actual_len]) }
+    }
+
     unsafe fn alloc_layout(&self, layout: core::alloc::Layout) -> *mut u8 {
         loop {
             let inner = &mut *self.inner.get();
@@ -136,6 +149,13 @@ mod tests {
     fn test_arena_calloc() {
         let arena: Arena = Arena::new();
         let x = arena.calloc(vec![42, 43]);
+        assert_eq!(x, &[42, 43]);
+    }
+
+    #[test]
+    fn test_arena_collect() {
+        let arena: Arena = Arena::new();
+        let x = arena.collect([42, 43].iter().copied());
         assert_eq!(x, &[42, 43]);
     }
 
