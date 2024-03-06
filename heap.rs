@@ -86,6 +86,11 @@ impl<T, S: PartialOrd> MinHeap<T, S> {
     pub fn iter_with_priority(&self) -> impl Iterator<Item = (&T, &S)> {
         self.0.iter().map(|entry| (&entry.data, &entry.priority))
     }
+
+    // cannot implement IntoIterator due to unable to name the return type in the trait
+    pub fn into_iter(self) -> impl Iterator<Item = (T, S)> {
+        self.0.into_iter().map(|entry| (entry.data, entry.priority))
+    }
 }
 
 #[cfg(feature = "std")]
@@ -130,6 +135,8 @@ mod tests{
         assert_eq!(heap.pop_with_priority(), Some(("b", 2)));
         assert_eq!(heap.len(), 2);
         heap.push("d", 1);
+        assert_eq!(heap.peek(), Some(&"d"));
+        let mut heap: MinHeap<_, _> = heap.into_iter().collect();
         assert_eq!(heap.peek(), Some(&"d"));
         heap.clear();
         assert!(heap.is_empty());
