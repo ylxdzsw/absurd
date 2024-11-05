@@ -43,30 +43,11 @@ macro_rules! new_index_type {
     }
 }
 
-#[macro_export]
-macro_rules! impl_index_type {
-    ($type_name: ident for $collection_type: ident . $member: ident as $output_type: ty) => {
-        impl core::ops::Index<$type_name> for $collection_type {
-            type Output = $output_type;
-
-            fn index(&self, index: $type_name) -> &Self::Output {
-                &self.$member[index.0 as usize]
-            }
-        }
-
-        impl core::ops::IndexMut<$type_name> for $collection_type {
-            fn index_mut(&mut self, index: $type_name) -> &mut Self::Output {
-                &mut self.$member[index.0 as usize]
-            }
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     #[test]
     fn test_index_type_1() {
-        new_index_type!(Test);
+        new_index_type!(Test(u16));
         new_index_type!(pub(crate) TestVisibility);
 
         let mut x: Test = 0.into();
@@ -78,21 +59,5 @@ mod tests {
         assert_eq!(x, Test(2));
 
         assert_eq!(x+1, Test(3));
-    }
-
-    #[test]
-    fn test_index_type_2() {
-        new_index_type!(Test(u32));
-        struct TestCollection {
-            v: Vec<&'static str>
-        }
-        impl_index_type!(Test for TestCollection.v as &'static str);
-
-        let mut x = TestCollection { v: vec!["a", "b", "c"] };
-        assert_eq!(x[Test(0)], "a");
-        assert_eq!(x[Test(1)], "b");
-        let y = &mut x[Test(2)];
-        *y = "d";
-        assert_eq!(x[Test(2)], "d");
     }
 }
