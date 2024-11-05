@@ -195,7 +195,7 @@ impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy, const N: usi
 
 #[cfg(test)]
 mod tests {
-    use crate::{new_usize_type, ArraySet, ArraySetConstructor};
+    use crate::{new_index_type, ArraySet, ArraySetConstructor};
     #[cfg(feature = "std")]
     use crate::{HashSetConstructor, BTreeSetConstructor};
     use super::*;
@@ -214,8 +214,8 @@ mod tests {
     }
 
     #[test]
-    fn test_bitset_with_set_constructor_and_usize_types() {
-        new_usize_type!(Foo);
+    fn test_bitset_with_set_constructor_and_index_types() {
+        new_index_type!(Foo);
         fn foo<S: Set<Foo>>() {
             let mut set = S::default();
             set.insert(Foo(5));

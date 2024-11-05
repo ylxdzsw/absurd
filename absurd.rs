@@ -17,6 +17,8 @@ pub use collections::*;
 mod heap;
 pub use heap::*;
 
+mod indextype;
+
 mod ioext;
 pub use ioext::*;
 
@@ -48,5 +50,3 @@ pub use ticker::*;
 
 mod uninit;
 pub use uninit::*;
-
-mod usizetype;

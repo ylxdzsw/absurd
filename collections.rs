@@ -62,17 +62,17 @@ impl<K: Eq + Hash, V, S: BuildHasher + Default> Map<K, V> for HashMap<K, V, S> {
     }
 
     #[allow(refining_impl_trait)]
-    fn keys<'a>(&'a self) -> impl ExactSizeIterator<Item = &K> + FusedIterator where K: 'a {
+    fn keys<'a>(&'a self) -> impl ExactSizeIterator<Item = &'a K> + FusedIterator where K: 'a {
         self.keys()
     }
 
     #[allow(refining_impl_trait)]
-    fn values<'a>(&'a self) -> impl ExactSizeIterator<Item = &V> + FusedIterator where K: 'a {
+    fn values<'a>(&'a self) -> impl ExactSizeIterator<Item = &'a V> + FusedIterator where K: 'a {
         self.values()
     }
 
     #[allow(refining_impl_trait)]
-    fn values_mut<'a>(&'a mut self) -> impl ExactSizeIterator<Item = &mut V> + FusedIterator where K: 'a {
+    fn values_mut<'a>(&'a mut self) -> impl ExactSizeIterator<Item = &'a mut V> + FusedIterator where K: 'a {
         self.values_mut()
     }
 
@@ -122,17 +122,17 @@ impl<K: Eq + Ord, V> Map<K, V> for BTreeMap<K, V> {
     }
 
     #[allow(refining_impl_trait)]
-    fn keys<'a>(&'a self) -> impl ExactSizeIterator<Item = &K> + DoubleEndedIterator + FusedIterator where K: 'a {
+    fn keys<'a>(&'a self) -> impl ExactSizeIterator<Item = &'a K> + DoubleEndedIterator + FusedIterator where K: 'a {
         self.keys()
     }
 
     #[allow(refining_impl_trait)]
-    fn values<'a>(&'a self) -> impl ExactSizeIterator<Item = &V> + DoubleEndedIterator + FusedIterator where K: 'a {
+    fn values<'a>(&'a self) -> impl ExactSizeIterator<Item = &'a V> + DoubleEndedIterator + FusedIterator where K: 'a {
         self.values()
     }
 
     #[allow(refining_impl_trait)]
-    fn values_mut<'a>(&'a mut self) -> impl ExactSizeIterator<Item = &mut V> + DoubleEndedIterator + FusedIterator where K: 'a {
+    fn values_mut<'a>(&'a mut self) -> impl ExactSizeIterator<Item = &'a mut V> + DoubleEndedIterator + FusedIterator where K: 'a {
         self.values_mut()
     }
 
@@ -334,17 +334,17 @@ impl<K: Eq, V, const N: usize> Map<K, V> for ArrayMap<K, V, N> {
     }
 
     #[allow(refining_impl_trait)]
-    fn keys<'a>(&'a self) -> impl ExactSizeIterator<Item = &K> + DoubleEndedIterator + FusedIterator where K: 'a {
+    fn keys<'a>(&'a self) -> impl ExactSizeIterator<Item = &'a K> + DoubleEndedIterator + FusedIterator where K: 'a {
         self.data.iter().map(|(k, _)| k)
     }
 
     #[allow(refining_impl_trait)]
-    fn values<'a>(&'a self) -> impl ExactSizeIterator<Item = &V> + DoubleEndedIterator + FusedIterator where V: 'a {
+    fn values<'a>(&'a self) -> impl ExactSizeIterator<Item = &'a V> + DoubleEndedIterator + FusedIterator where V: 'a {
         self.data.iter().map(|(_, v)| v)
     }
 
     #[allow(refining_impl_trait)]
-    fn values_mut<'a>(&'a mut self) -> impl ExactSizeIterator<Item = &mut V> + DoubleEndedIterator + FusedIterator where V: 'a {
+    fn values_mut<'a>(&'a mut self) -> impl ExactSizeIterator<Item = &'a mut V> + DoubleEndedIterator + FusedIterator where V: 'a {
         self.data.iter_mut().map(|(_, v)| v)
     }
 
