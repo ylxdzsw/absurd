@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `search.rs`."><title>search.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-590a400c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="absurd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (fbab78289 2024-11-04)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">absurd/</div>search.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `search.rs`."><title>search.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="absurd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (5ec7d6eee 2024-11-17)" data-channel="nightly" data-search-js="search-53f21e11.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">absurd/</div>search.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -212,7 +212,7 @@
 <span class="kw">use crate</span>::{Map, MapConstructor};
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use crate</span>::{HashMapConstructor, BTreeMapConstructor};
-<span class="kw">use </span><span class="kw">crate</span>::Real;
+<span class="kw">use </span><span class="kw">crate</span>::Arithmetic;
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::Arena;
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
@@ -223,7 +223,7 @@
     </span>F: Fn(<span class="kw-2">&amp;</span>Node) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;(Node, S)&gt;&gt;, <span class="comment">// F is the evaluation function
     </span>H: Fn(<span class="kw-2">&amp;</span>Node) -&gt; S, <span class="comment">// H is the heuristic function
     </span>C: <span class="kw">for </span>&lt;<span class="lifetime">'a</span>&gt; MapConstructor&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Node&gt;, <span class="comment">// C is the cache implemenation
-    </span>S: Real + Clone <span class="comment">// S is the score (cost) type
+    </span>S: Arithmetic + Clone <span class="comment">// S is the score (cost) type
 </span>{
     eval_node: F,
     heuristic: H,
@@ -233,7 +233,7 @@
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">impl</span>&lt;Node: Eq, F, S&gt; ShortestPath&lt;Node, F, <span class="kw">fn</span>(<span class="kw-2">&amp;</span>Node) -&gt; S, ArrayMapConstructor&lt;<span class="number">0</span>&gt;, S&gt; <span class="kw">where
     </span>F: Fn(<span class="kw-2">&amp;</span>Node) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;(Node, S)&gt;&gt;,
-    S: Real + Clone
+    S: Arithmetic + Clone
 {
     <span class="kw">pub fn </span>new(eval_node: F) -&gt; <span class="self">Self </span>{
         ShortestPath {
@@ -248,7 +248,7 @@
 </span><span class="kw">impl</span>&lt;Node: Eq + Hash, F, H, S&gt; ShortestPath&lt;Node, F, H, ArrayMapConstructor&lt;<span class="number">0</span>&gt;, S&gt; <span class="kw">where
     </span>F: Fn(<span class="kw-2">&amp;</span>Node) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;(Node, S)&gt;&gt;,
     H: Fn(<span class="kw-2">&amp;</span>Node) -&gt; S,
-    S: Real + Clone
+    S: Arithmetic + Clone
 {
     <span class="kw">pub fn </span>use_hash_map(<span class="self">self</span>) -&gt; ShortestPath&lt;Node, F, H, HashMapConstructor, S&gt; {
         ShortestPath {
@@ -263,7 +263,7 @@
 </span><span class="kw">impl</span>&lt;Node: Eq + Ord, F, H, S&gt; ShortestPath&lt;Node, F, H, ArrayMapConstructor&lt;<span class="number">0</span>&gt;, S&gt; <span class="kw">where
     </span>F: Fn(<span class="kw-2">&amp;</span>Node) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;(Node, S)&gt;&gt;,
     H: Fn(<span class="kw-2">&amp;</span>Node) -&gt; S,
-    S: Real + Clone
+    S: Arithmetic + Clone
 {
     <span class="kw">pub fn </span>use_btree_map(<span class="self">self</span>) -&gt; ShortestPath&lt;Node, F, H, BTreeMapConstructor, S&gt; {
         ShortestPath {
@@ -279,7 +279,7 @@
     </span>F: Fn(<span class="kw-2">&amp;</span>Node) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;(Node, S)&gt;&gt;,
     H: Fn(<span class="kw-2">&amp;</span>Node) -&gt; S,
     C: <span class="kw">for </span>&lt;<span class="lifetime">'a</span>&gt; MapConstructor&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Node&gt;,
-    S: Real + Clone
+    S: Arithmetic + Clone
 {
     <span class="kw">pub fn </span>use_heuristic&lt;H2: Fn(<span class="kw-2">&amp;</span>Node) -&gt; S&gt;(<span class="self">self</span>, heuristic: H2) -&gt; ShortestPath&lt;Node, F, H2, C, S&gt; {
         ShortestPath {
@@ -339,7 +339,7 @@
 <span class="doccomment">/// returns a tightened range `(l, r)` such that `f(l) == false &amp;&amp; f(r) == true &amp;&amp; r - l &lt;= target_range`
 /// example: `binary_search((0.0, 100.0), 1e-6, |x| x * x * x + x &gt; 5.0)` returns `(1.51598, 1.51599)`
 </span><span class="kw">pub fn </span>binary_search&lt;T, F&gt;(support: (T, T), target_range: T, f: F) -&gt; (T, T) <span class="kw">where
-    </span>T: Copy + Real,
+    </span>T: Copy + Arithmetic,
     F: Fn(<span class="kw-2">&amp;</span>T) -&gt; bool
 {
     <span class="kw">let </span>(<span class="kw-2">mut </span>l, <span class="kw-2">mut </span>r) = support;

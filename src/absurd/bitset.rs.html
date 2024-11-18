@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `bitset.rs`."><title>bitset.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-590a400c.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="absurd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (fbab78289 2024-11-04)" data-channel="nightly" data-search-js="search-c5a66128.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">absurd/</div>bitset.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `bitset.rs`."><title>bitset.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-42caa33d.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="absurd" data-themes="" data-resource-suffix="" data-rustdoc-version="1.84.0-nightly (5ec7d6eee 2024-11-17)" data-channel="nightly" data-search-js="search-53f21e11.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">absurd/</div>bitset.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
 <a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -276,9 +276,7 @@
 <a href="#275" id="275">275</a>
 <a href="#276" id="276">276</a>
 <a href="#277" id="277">277</a>
-<a href="#278" id="278">278</a>
-<a href="#279" id="279">279</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::BitOps;
-<span class="kw">use </span><span class="kw">crate</span>::FullBitPrimitive;
+<a href="#278" id="278">278</a></pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::BitOps;
 <span class="kw">use </span><span class="kw">crate</span>::Integer;
 <span class="kw">use </span><span class="kw">crate</span>::Set;
 <span class="kw">use </span><span class="kw">crate</span>::SetConstructor;
@@ -289,7 +287,7 @@
 }
 
 <span class="doccomment">/// `BitSet` is a set of `usize` values.
-/// `E`: FullBitPrimitive + Integer + BitOps is the element type of the storage
+/// `E`: Integer + BitOps is the element type of the storage
 /// `T`: Into&lt;usize&gt; + Copy is the element type of the set
 /// `S` is the storage type, can either be `Vec&lt;E&gt;` or `[E; N]`
 </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
@@ -308,7 +306,7 @@
     }
 }
 
-<span class="kw">pub trait </span>BitSetView&lt;E: FullBitPrimitive + Integer + BitOps&gt;: AsRef&lt;[E]&gt; + AsMut&lt;[E]&gt; {
+<span class="kw">pub trait </span>BitSetView&lt;E: Integer + BitOps&gt;: AsRef&lt;[E]&gt; + AsMut&lt;[E]&gt; {
     <span class="kw">fn </span>bit_index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; (usize, usize) {
         (index / <span class="macro">bit_size_of!</span>(E), index % <span class="macro">bit_size_of!</span>(E))
     }
@@ -331,10 +329,10 @@
     }
 }
 
-<span class="kw">impl</span>&lt;E: FullBitPrimitive + Integer + BitOps&gt; BitSetView&lt;E&gt; <span class="kw">for </span>[E] {}
+<span class="kw">impl</span>&lt;E: Integer + BitOps&gt; BitSetView&lt;E&gt; <span class="kw">for </span>[E] {}
 
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">impl</span>&lt;E: FullBitPrimitive + Integer + BitOps, T: Into&lt;usize&gt; + Copy&gt; BitSet&lt;T, Vec&lt;E&gt;&gt; {
+</span><span class="kw">impl</span>&lt;E: Integer + BitOps, T: Into&lt;usize&gt; + Copy&gt; BitSet&lt;T, Vec&lt;E&gt;&gt; {
     <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         BitSet::with_storage(<span class="macro">vec!</span>[])
     }
@@ -347,14 +345,14 @@
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">impl</span>&lt;E: FullBitPrimitive + Integer + BitOps, T: Into&lt;usize&gt; + Copy&gt; Default <span class="kw">for </span>BitSet&lt;T, Vec&lt;E&gt;&gt; {
+</span><span class="kw">impl</span>&lt;E: Integer + BitOps, T: Into&lt;usize&gt; + Copy&gt; Default <span class="kw">for </span>BitSet&lt;T, Vec&lt;E&gt;&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new()
     }
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">impl</span>&lt;E: FullBitPrimitive + Integer + BitOps, T: Into&lt;usize&gt; + Copy&gt; Set&lt;T&gt; <span class="kw">for </span>BitSet&lt;T, Vec&lt;E&gt;&gt; {
+</span><span class="kw">impl</span>&lt;E: Integer + BitOps, T: Into&lt;usize&gt; + Copy&gt; Set&lt;T&gt; <span class="kw">for </span>BitSet&lt;T, Vec&lt;E&gt;&gt; {
     <span class="kw">fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: T) -&gt; bool {
         <span class="kw">let </span>(element_index, bit_offset) = <span class="self">self</span>.<span class="number">0</span>.bit_index(index.into());
         <span class="kw">if </span>element_index &gt;= <span class="self">self</span>.<span class="number">0</span>.len() {
@@ -385,7 +383,7 @@
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">impl</span>&lt;E: FullBitPrimitive + Integer + BitOps, T: Into&lt;usize&gt; + Copy&gt; FromIterator&lt;T&gt; <span class="kw">for </span>BitSet&lt;T, Vec&lt;E&gt;&gt; {
+</span><span class="kw">impl</span>&lt;E: Integer + BitOps, T: Into&lt;usize&gt; + Copy&gt; FromIterator&lt;T&gt; <span class="kw">for </span>BitSet&lt;T, Vec&lt;E&gt;&gt; {
     <span class="kw">fn </span>from_iter&lt;I: IntoIterator&lt;Item = T&gt;&gt;(iter: I) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>set = <span class="self">Self</span>::new();
         <span class="kw">for </span>i <span class="kw">in </span>iter {
@@ -396,25 +394,25 @@
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">impl</span>&lt;E: FullBitPrimitive + Integer + BitOps, T: Into&lt;usize&gt; + Copy&gt; BitSet&lt;T, Vec&lt;E&gt;&gt; {
+</span><span class="kw">impl</span>&lt;E: Integer + BitOps, T: Into&lt;usize&gt; + Copy&gt; BitSet&lt;T, Vec&lt;E&gt;&gt; {
     <span class="kw">pub fn </span>is_subset_of(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
         <span class="self">self</span>.<span class="number">0</span>.bit_is_subset_of(<span class="kw-2">&amp;</span>other.<span class="number">0</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;E: FullBitPrimitive + Integer + BitOps, T: Into&lt;usize&gt; + Copy, <span class="kw">const </span>N: usize&gt; BitSet&lt;T, [E; N]&gt; {
+<span class="kw">impl</span>&lt;E: Integer + BitOps, T: Into&lt;usize&gt; + Copy, <span class="kw">const </span>N: usize&gt; BitSet&lt;T, [E; N]&gt; {
     <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         BitSet::with_storage([E::zero(); N])
     }
 }
 
-<span class="kw">impl</span>&lt;E: FullBitPrimitive + Integer + BitOps, T: Into&lt;usize&gt; + Copy, <span class="kw">const </span>N: usize&gt; Default <span class="kw">for </span>BitSet&lt;T, [E; N]&gt; {
+<span class="kw">impl</span>&lt;E: Integer + BitOps, T: Into&lt;usize&gt; + Copy, <span class="kw">const </span>N: usize&gt; Default <span class="kw">for </span>BitSet&lt;T, [E; N]&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new()
     }
 }
 
-<span class="kw">impl</span>&lt;E: FullBitPrimitive + Integer + BitOps, T: Into&lt;usize&gt; + Copy, <span class="kw">const </span>N: usize&gt; FromIterator&lt;T&gt; <span class="kw">for </span>BitSet&lt;T, [E; N]&gt; {
+<span class="kw">impl</span>&lt;E: Integer + BitOps, T: Into&lt;usize&gt; + Copy, <span class="kw">const </span>N: usize&gt; FromIterator&lt;T&gt; <span class="kw">for </span>BitSet&lt;T, [E; N]&gt; {
     <span class="kw">fn </span>from_iter&lt;I: IntoIterator&lt;Item = T&gt;&gt;(iter: I) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>set = <span class="self">Self</span>::new();
         <span class="kw">for </span>i <span class="kw">in </span>iter {
@@ -424,7 +422,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;E: FullBitPrimitive + Integer + BitOps, T: Into&lt;usize&gt; + Copy, <span class="kw">const </span>N: usize&gt; Set&lt;T&gt; <span class="kw">for </span>BitSet&lt;T, [E; N]&gt; {
+<span class="kw">impl</span>&lt;E: Integer + BitOps, T: Into&lt;usize&gt; + Copy, <span class="kw">const </span>N: usize&gt; Set&lt;T&gt; <span class="kw">for </span>BitSet&lt;T, [E; N]&gt; {
     <span class="kw">fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: T) -&gt; bool {
         <span class="kw">let </span>(element_index, bit_offset) = <span class="self">self</span>.<span class="number">0</span>.bit_index(index.into());
         <span class="kw">let </span>old = <span class="self">self</span>.<span class="number">0</span>.bit_get(element_index, bit_offset);
@@ -451,7 +449,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;E: FullBitPrimitive + Integer + BitOps, T: Into&lt;usize&gt; + Copy, <span class="kw">const </span>N: usize&gt; BitSet&lt;T, [E; N]&gt; {
+<span class="kw">impl</span>&lt;E: Integer + BitOps, T: Into&lt;usize&gt; + Copy, <span class="kw">const </span>N: usize&gt; BitSet&lt;T, [E; N]&gt; {
     <span class="kw">pub fn </span>is_subset_of(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
         <span class="self">self</span>.<span class="number">0</span>.bit_is_subset_of(<span class="kw-2">&amp;</span>other.<span class="number">0</span>)
     }
@@ -464,11 +462,11 @@
 </span><span class="kw">pub struct </span>BitSetConstructor&lt;T&gt;(core::marker::PhantomData&lt;T&gt;);
 
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">impl</span>&lt;E: FullBitPrimitive + Integer + BitOps, T: Into&lt;usize&gt; + Copy&gt; SetConstructor&lt;T&gt; <span class="kw">for </span>BitSetConstructor&lt;Vec&lt;E&gt;&gt; {
+</span><span class="kw">impl</span>&lt;E: Integer + BitOps, T: Into&lt;usize&gt; + Copy&gt; SetConstructor&lt;T&gt; <span class="kw">for </span>BitSetConstructor&lt;Vec&lt;E&gt;&gt; {
     <span class="kw">type </span>Set = BitSet&lt;T, Vec&lt;E&gt;&gt;;
 }
 
-<span class="kw">impl</span>&lt;E: FullBitPrimitive + Integer + BitOps, T: Into&lt;usize&gt; + Copy, <span class="kw">const </span>N: usize&gt; SetConstructor&lt;T&gt; <span class="kw">for </span>BitSetConstructor&lt;[E; N]&gt; {
+<span class="kw">impl</span>&lt;E: Integer + BitOps, T: Into&lt;usize&gt; + Copy, <span class="kw">const </span>N: usize&gt; SetConstructor&lt;T&gt; <span class="kw">for </span>BitSetConstructor&lt;[E; N]&gt; {
     <span class="kw">type </span>Set = BitSet&lt;T, [E; N]&gt;;
 }
 
