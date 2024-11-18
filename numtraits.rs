@@ -1,17 +1,5 @@
-use core::ops::{Add, Sub, Mul, Div, Rem, BitAnd, BitOr, BitXor, Not, Shl, Shr, BitAndAssign, BitOrAssign, BitXorAssign, AddAssign, SubAssign, MulAssign, DivAssign, RemAssign, ShlAssign, ShrAssign, Neg};
+use core::ops::{Add, Sub, Mul, Div, Rem, BitAnd, BitOr, BitXor, Not, Shl, Shr, BitAndAssign, BitOrAssign, BitXorAssign, AddAssign, SubAssign, MulAssign, DivAssign, RemAssign, ShlAssign, ShrAssign};
 use core::fmt::Debug;
-
-pub trait FullBitPrimitive: Copy {}
-impl FullBitPrimitive for u8 {}
-impl FullBitPrimitive for i8 {}
-impl FullBitPrimitive for u16 {}
-impl FullBitPrimitive for i16 {}
-impl FullBitPrimitive for u32 {}
-impl FullBitPrimitive for i32 {}
-impl FullBitPrimitive for u64 {}
-impl FullBitPrimitive for i64 {}
-impl FullBitPrimitive for usize {}
-impl FullBitPrimitive for isize {}
 
 pub trait One { fn one() -> Self; }
 pub fn one<T: One>() -> T { T::one() }
@@ -47,7 +35,7 @@ impl Zero for isize { fn zero() -> Self { 0 } }
 impl Zero for f32 { fn zero() -> Self { 0.0 } }
 impl Zero for f64 { fn zero() -> Self { 0.0 } }
 
-pub trait Real:
+pub trait Arithmetic:
     Sized +
     Debug +
     One +
@@ -60,29 +48,58 @@ pub trait Real:
     MulAssign +
     Div<Output=Self> +
     DivAssign +
+    Rem<Output=Self> +
+    RemAssign +
     PartialOrd +
     PartialEq
 {}
 
-impl Real for u8 {}
-impl Real for i8 {}
-impl Real for u16 {}
-impl Real for i16 {}
-impl Real for u32 {}
-impl Real for i32 {}
-impl Real for u64 {}
-impl Real for i64 {}
-impl Real for u128 {}
-impl Real for i128 {}
-impl Real for usize {}
-impl Real for isize {}
-impl Real for f32 {}
-impl Real for f64 {}
+impl Arithmetic for u8 {}
+impl Arithmetic for i8 {}
+impl Arithmetic for u16 {}
+impl Arithmetic for i16 {}
+impl Arithmetic for u32 {}
+impl Arithmetic for i32 {}
+impl Arithmetic for u64 {}
+impl Arithmetic for i64 {}
+impl Arithmetic for u128 {}
+impl Arithmetic for i128 {}
+impl Arithmetic for usize {}
+impl Arithmetic for isize {}
+impl Arithmetic for f32 {}
+impl Arithmetic for f64 {}
+
+pub trait BitOps:
+    Sized +
+    BitAnd<Output=Self> +
+    BitAndAssign +
+    BitOr<Output=Self> +
+    BitOrAssign +
+    BitXor<Output=Self> +
+    BitXorAssign +
+    Not<Output=Self> +
+    Shl<usize, Output=Self> +
+    ShlAssign +
+    Shr<usize, Output=Self> +
+    ShrAssign
+{}
+
+impl BitOps for u8 {}
+impl BitOps for i8 {}
+impl BitOps for u16 {}
+impl BitOps for i16 {}
+impl BitOps for u32 {}
+impl BitOps for i32 {}
+impl BitOps for u64 {}
+impl BitOps for i64 {}
+impl BitOps for u128 {}
+impl BitOps for i128 {}
+impl BitOps for usize {}
+impl BitOps for isize {}
 
 pub trait Integer:
-    Real +
-    Rem<Output=Self> +
-    RemAssign +
+    Arithmetic +
+    BitOps +
     Copy // TODO: Remove this?
 {
     fn is_even(self) -> bool {
@@ -166,42 +183,20 @@ impl Integer for usize {
 }
 impl Integer for isize {}
 
-pub trait Signed:
-    Real +
-    Neg<Output=Self>
-{}
 
-impl Signed for i8 {}
-impl Signed for i16 {}
-impl Signed for i32 {}
-impl Signed for i64 {}
-impl Signed for i128 {}
-impl Signed for isize {}
-impl Signed for f32 {}
-impl Signed for f64 {}
+mod tests {
+    #[test]
+    fn test_u128() {
+        let a = 0b1010u128;
+        let b = 0b1100u128;
+        assert_eq!(a & b, 0b1000u128);
+        assert_eq!(a | b, 0b1110u128);
+        assert_eq!(a ^ b, 0b0110u128);
+        assert_eq!((a << 99) >> 100, 0b101u128);
 
-pub trait BitOps:
-    FullBitPrimitive +
-    BitAnd<Output=Self> +
-    BitAndAssign +
-    BitOr<Output=Self> +
-    BitOrAssign +
-    BitXor<Output=Self> +
-    BitXorAssign +
-    Not<Output=Self> +
-    Shl<usize, Output=Self> +
-    ShlAssign +
-    Shr<usize, Output=Self> +
-    ShrAssign
-{}
-
-impl BitOps for u8 {}
-impl BitOps for i8 {}
-impl BitOps for u16 {}
-impl BitOps for i16 {}
-impl BitOps for u32 {}
-impl BitOps for i32 {}
-impl BitOps for u64 {}
-impl BitOps for i64 {}
-impl BitOps for usize {}
-impl BitOps for isize {}
+        assert_eq!(a.next_multiple_of(3), 12);
+        assert_eq!(a.next_multiple_of(10), 10);
+        assert_eq!(a.div_ceil(3), 4);
+        assert_eq!(super::Integer::div_floor(a, 3), 3);
+    }
+}

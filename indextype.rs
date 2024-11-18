@@ -5,29 +5,29 @@ macro_rules! new_index_type {
         #[repr(transparent)]
         $visibility struct $type_name(pub $base_type);
 
-        impl core::ops::Add<$base_type> for $type_name {
+        impl core::ops::Add<usize> for $type_name {
             type Output = $type_name;
 
-            fn add(self, rhs: $base_type) -> $type_name {
-                $type_name(self.0 + rhs)
+            fn add(self, rhs: usize) -> $type_name {
+                $type_name(self.0 + rhs as $base_type)
             }
         }
 
-        impl core::ops::AddAssign<$base_type> for $type_name {
-            fn add_assign(&mut self, rhs: $base_type) {
-                self.0 += rhs;
+        impl core::ops::AddAssign<usize> for $type_name {
+            fn add_assign(&mut self, rhs: usize) {
+                self.0 += rhs as $base_type;
             }
         }
 
-        impl From<$base_type> for $type_name {
-            fn from(x: $base_type) -> $type_name {
-                $type_name(x)
+        impl From<usize> for $type_name {
+            fn from(x: usize) -> $type_name {
+                $type_name(x as $base_type)
             }
         }
 
-        impl From<$type_name> for $base_type {
-            fn from(x: $type_name) -> $base_type {
-                x.0
+        impl From<$type_name> for usize {
+            fn from(x: $type_name) -> usize {
+                x.0 as usize
             }
         }
 

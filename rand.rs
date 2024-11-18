@@ -23,13 +23,16 @@ impl Xorshift32 {
         self.state
     }
 
+    #[cfg(target_pointer_width = "32")]
     pub fn gen_usize(&mut self) -> usize {
-        let x = self.gen_u32() as usize;
-        if core::mem::size_of::<usize>() <= 4 {
-            x
-        } else {
-            (x << 32) | x
-        }
+        self.gen_u32() as usize
+    }
+
+    #[cfg(target_pointer_width = "64")]
+    pub fn gen_usize(&mut self) -> usize {
+        let a = self.gen_u32() as usize;
+        let b = self.gen_u32() as usize;
+        (a << 32) | b
     }
 }
 

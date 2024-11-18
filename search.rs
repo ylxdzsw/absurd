@@ -4,7 +4,7 @@ use crate::ArrayMapConstructor;
 use crate::{Map, MapConstructor};
 #[cfg(feature = "std")]
 use crate::{HashMapConstructor, BTreeMapConstructor};
-use crate::Real;
+use crate::Arithmetic;
 #[cfg(feature = "std")]
 use crate::Arena;
 #[cfg(feature = "std")]
@@ -15,7 +15,7 @@ pub struct ShortestPath<Node, F, H, C, S> where
     F: Fn(&Node) -> Option<Vec<(Node, S)>>, // F is the evaluation function
     H: Fn(&Node) -> S, // H is the heuristic function
     C: for <'a> MapConstructor<&'a Node>, // C is the cache implemenation
-    S: Real + Clone // S is the score (cost) type
+    S: Arithmetic + Clone // S is the score (cost) type
 {
     eval_node: F,
     heuristic: H,
@@ -25,7 +25,7 @@ pub struct ShortestPath<Node, F, H, C, S> where
 #[cfg(feature = "std")]
 impl<Node: Eq, F, S> ShortestPath<Node, F, fn(&Node) -> S, ArrayMapConstructor<0>, S> where
     F: Fn(&Node) -> Option<Vec<(Node, S)>>,
-    S: Real + Clone
+    S: Arithmetic + Clone
 {
     pub fn new(eval_node: F) -> Self {
         ShortestPath {
@@ -40,7 +40,7 @@ impl<Node: Eq, F, S> ShortestPath<Node, F, fn(&Node) -> S, ArrayMapConstructor<0
 impl<Node: Eq + Hash, F, H, S> ShortestPath<Node, F, H, ArrayMapConstructor<0>, S> where
     F: Fn(&Node) -> Option<Vec<(Node, S)>>,
     H: Fn(&Node) -> S,
-    S: Real + Clone
+    S: Arithmetic + Clone
 {
     pub fn use_hash_map(self) -> ShortestPath<Node, F, H, HashMapConstructor, S> {
         ShortestPath {
@@ -55,7 +55,7 @@ impl<Node: Eq + Hash, F, H, S> ShortestPath<Node, F, H, ArrayMapConstructor<0>, 
 impl<Node: Eq + Ord, F, H, S> ShortestPath<Node, F, H, ArrayMapConstructor<0>, S> where
     F: Fn(&Node) -> Option<Vec<(Node, S)>>,
     H: Fn(&Node) -> S,
-    S: Real + Clone
+    S: Arithmetic + Clone
 {
     pub fn use_btree_map(self) -> ShortestPath<Node, F, H, BTreeMapConstructor, S> {
         ShortestPath {
@@ -71,7 +71,7 @@ impl<Node, F, H, C, S> ShortestPath<Node, F, H, C, S> where
     F: Fn(&Node) -> Option<Vec<(Node, S)>>,
     H: Fn(&Node) -> S,
     C: for <'a> MapConstructor<&'a Node>,
-    S: Real + Clone
+    S: Arithmetic + Clone
 {
     pub fn use_heuristic<H2: Fn(&Node) -> S>(self, heuristic: H2) -> ShortestPath<Node, F, H2, C, S> {
         ShortestPath {
@@ -131,7 +131,7 @@ impl<Node, F, H, C, S> ShortestPath<Node, F, H, C, S> where
 /// returns a tightened range `(l, r)` such that `f(l) == false && f(r) == true && r - l <= target_range`
 /// example: `binary_search((0.0, 100.0), 1e-6, |x| x * x * x + x > 5.0)` returns `(1.51598, 1.51599)`
 pub fn binary_search<T, F>(support: (T, T), target_range: T, f: F) -> (T, T) where
-    T: Copy + Real,
+    T: Copy + Arithmetic,
     F: Fn(&T) -> bool
 {
     let (mut l, mut r) = support;

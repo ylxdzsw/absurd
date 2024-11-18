@@ -1,5 +1,4 @@
 use crate::BitOps;
-use crate::FullBitPrimitive;
 use crate::Integer;
 use crate::Set;
 use crate::SetConstructor;
@@ -10,7 +9,7 @@ macro_rules! bit_size_of {
 }
 
 /// `BitSet` is a set of `usize` values.
-/// `E`: FullBitPrimitive + Integer + BitOps is the element type of the storage
+/// `E`: Integer + BitOps is the element type of the storage
 /// `T`: Into<usize> + Copy is the element type of the set
 /// `S` is the storage type, can either be `Vec<E>` or `[E; N]`
 #[cfg(feature = "std")]
@@ -29,7 +28,7 @@ impl<T: Into<usize> + Copy, S> BitSet<T, S> {
     }
 }
 
-pub trait BitSetView<E: FullBitPrimitive + Integer + BitOps>: AsRef<[E]> + AsMut<[E]> {
+pub trait BitSetView<E: Integer + BitOps>: AsRef<[E]> + AsMut<[E]> {
     fn bit_index(&self, index: usize) -> (usize, usize) {
         (index / bit_size_of!(E), index % bit_size_of!(E))
     }
@@ -52,10 +51,10 @@ pub trait BitSetView<E: FullBitPrimitive + Integer + BitOps>: AsRef<[E]> + AsMut
     }
 }
 
-impl<E: FullBitPrimitive + Integer + BitOps> BitSetView<E> for [E] {}
+impl<E: Integer + BitOps> BitSetView<E> for [E] {}
 
 #[cfg(feature = "std")]
-impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy> BitSet<T, Vec<E>> {
+impl<E: Integer + BitOps, T: Into<usize> + Copy> BitSet<T, Vec<E>> {
     pub fn new() -> Self {
         BitSet::with_storage(vec![])
     }
@@ -68,14 +67,14 @@ impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy> BitSet<T, Ve
 }
 
 #[cfg(feature = "std")]
-impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy> Default for BitSet<T, Vec<E>> {
+impl<E: Integer + BitOps, T: Into<usize> + Copy> Default for BitSet<T, Vec<E>> {
     fn default() -> Self {
         Self::new()
     }
 }
 
 #[cfg(feature = "std")]
-impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy> Set<T> for BitSet<T, Vec<E>> {
+impl<E: Integer + BitOps, T: Into<usize> + Copy> Set<T> for BitSet<T, Vec<E>> {
     fn insert(&mut self, index: T) -> bool {
         let (element_index, bit_offset) = self.0.bit_index(index.into());
         if element_index >= self.0.len() {
@@ -106,7 +105,7 @@ impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy> Set<T> for B
 }
 
 #[cfg(feature = "std")]
-impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy> FromIterator<T> for BitSet<T, Vec<E>> {
+impl<E: Integer + BitOps, T: Into<usize> + Copy> FromIterator<T> for BitSet<T, Vec<E>> {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
         let mut set = Self::new();
         for i in iter {
@@ -117,25 +116,25 @@ impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy> FromIterator
 }
 
 #[cfg(feature = "std")]
-impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy> BitSet<T, Vec<E>> {
+impl<E: Integer + BitOps, T: Into<usize> + Copy> BitSet<T, Vec<E>> {
     pub fn is_subset_of(&self, other: &Self) -> bool {
         self.0.bit_is_subset_of(&other.0)
     }
 }
 
-impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy, const N: usize> BitSet<T, [E; N]> {
+impl<E: Integer + BitOps, T: Into<usize> + Copy, const N: usize> BitSet<T, [E; N]> {
     pub fn new() -> Self {
         BitSet::with_storage([E::zero(); N])
     }
 }
 
-impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy, const N: usize> Default for BitSet<T, [E; N]> {
+impl<E: Integer + BitOps, T: Into<usize> + Copy, const N: usize> Default for BitSet<T, [E; N]> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy, const N: usize> FromIterator<T> for BitSet<T, [E; N]> {
+impl<E: Integer + BitOps, T: Into<usize> + Copy, const N: usize> FromIterator<T> for BitSet<T, [E; N]> {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
         let mut set = Self::new();
         for i in iter {
@@ -145,7 +144,7 @@ impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy, const N: usi
     }
 }
 
-impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy, const N: usize> Set<T> for BitSet<T, [E; N]> {
+impl<E: Integer + BitOps, T: Into<usize> + Copy, const N: usize> Set<T> for BitSet<T, [E; N]> {
     fn insert(&mut self, index: T) -> bool {
         let (element_index, bit_offset) = self.0.bit_index(index.into());
         let old = self.0.bit_get(element_index, bit_offset);
@@ -172,7 +171,7 @@ impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy, const N: usi
     }
 }
 
-impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy, const N: usize> BitSet<T, [E; N]> {
+impl<E: Integer + BitOps, T: Into<usize> + Copy, const N: usize> BitSet<T, [E; N]> {
     pub fn is_subset_of(&self, other: &Self) -> bool {
         self.0.bit_is_subset_of(&other.0)
     }
@@ -185,11 +184,11 @@ pub struct BitSetConstructor<T = Vec<u32>>(core::marker::PhantomData<T>);
 pub struct BitSetConstructor<T>(core::marker::PhantomData<T>);
 
 #[cfg(feature = "std")]
-impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy> SetConstructor<T> for BitSetConstructor<Vec<E>> {
+impl<E: Integer + BitOps, T: Into<usize> + Copy> SetConstructor<T> for BitSetConstructor<Vec<E>> {
     type Set = BitSet<T, Vec<E>>;
 }
 
-impl<E: FullBitPrimitive + Integer + BitOps, T: Into<usize> + Copy, const N: usize> SetConstructor<T> for BitSetConstructor<[E; N]> {
+impl<E: Integer + BitOps, T: Into<usize> + Copy, const N: usize> SetConstructor<T> for BitSetConstructor<[E; N]> {
     type Set = BitSet<T, [E; N]>;
 }
 

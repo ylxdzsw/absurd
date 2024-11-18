@@ -47,6 +47,3 @@ pub use search::*;
 
 mod ticker;
 pub use ticker::*;
-
-mod uninit;
-pub use uninit::*;

@@ -1,5 +1,3 @@
-use crate::new_uninit_primitive;
-
 #[cfg(feature = "std")]
 pub trait ReadExt: std::io::Read {
     /// Allocate a `Vec<u8>` and read all bytes until EOF in this source into it.
@@ -28,7 +26,9 @@ pub trait ReadExt: std::io::Read {
 
     /// Allocate a `Box<[u8]>` and read exactly `n` bytes in this source into it.
     fn read_exact_alloc(&mut self, n: usize) -> std::io::Result<Box<[u8]>> {
-        let mut buf: Box<[_]> = new_uninit_primitive(n);
+        // (read_buf #78485)
+        // let buf: Box<[_]> = Box::new_uninit_slice(n);
+        let mut buf = vec![0; n].into_boxed_slice();
         self.read_exact(&mut buf)?;
         Ok(buf)
     }
