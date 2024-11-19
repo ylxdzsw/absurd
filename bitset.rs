@@ -120,6 +120,10 @@ impl<E: Integer + BitOps, T: Into<usize> + Copy> BitSet<T, Vec<E>> {
     pub fn is_subset_of(&self, other: &Self) -> bool {
         self.0.bit_is_subset_of(&other.0)
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.iter().all(|&x| x == E::zero())
+    }
 }
 
 impl<E: Integer + BitOps, T: Into<usize> + Copy, const N: usize> BitSet<T, [E; N]> {
@@ -175,6 +179,10 @@ impl<E: Integer + BitOps, T: Into<usize> + Copy, const N: usize> BitSet<T, [E; N
     pub fn is_subset_of(&self, other: &Self) -> bool {
         self.0.bit_is_subset_of(&other.0)
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.iter().all(|&x| x == E::zero())
+    }
 }
 
 #[cfg(feature = "std")]
@@ -207,9 +215,11 @@ mod tests {
         assert!(set.insert(5usize));
         assert!(!set.insert(5usize));
         assert!(set.contains(&5usize));
+        assert!(!set.is_empty());
         assert!(set.remove(&5usize));
         assert!(!set.contains(&5usize));
         assert!(!set.remove(&5usize));
+        assert!(set.is_empty());
     }
 
     #[test]
