@@ -43,3 +43,31 @@ macro_rules! align_of {
     ($t:ty) => { core::mem::align_of::<$t>() };
     ($t:ty, $($ts:ty),+) => { core::cmp::max(core::mem::align_of::<$t>(), align_of!($($ts),+)) };
 }
+
+pub trait ExtForOption {
+    fn assert_some(&self);
+    fn debug_assert_some(&self);
+    fn assert_none(&self);
+    fn debug_assert_none(&self);
+}
+
+impl<T> ExtForOption for Option<T> {
+    fn assert_some(&self) { assert!(self.is_some()) }
+    fn debug_assert_some(&self) { debug_assert!(self.is_some()) }
+    fn assert_none(&self) { assert!(self.is_none()) }
+    fn debug_assert_none(&self) { debug_assert!(self.is_none()) }
+}
+
+pub trait ExtForResult {
+    fn assert_ok(&self);
+    fn debug_assert_ok(&self);
+    fn assert_err(&self);
+    fn debug_assert_err(&self);
+}
+
+impl<T, E> ExtForResult for Result<T, E> {
+    fn assert_ok(&self) { assert!(self.is_ok()) }
+    fn debug_assert_ok(&self) { debug_assert!(self.is_ok()) }
+    fn assert_err(&self) { assert!(self.is_err()) }
+    fn debug_assert_err(&self) { debug_assert!(self.is_err()) }
+}
