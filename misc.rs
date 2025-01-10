@@ -71,3 +71,19 @@ impl<T, E> ExtForResult for Result<T, E> {
     fn assert_err(&self) { assert!(self.is_err()) }
     fn debug_assert_err(&self) { debug_assert!(self.is_err()) }
 }
+
+pub trait ExtForFloatMax<T>: Iterator<Item = T> {
+    fn float_max(self) -> Option<T>;
+}
+
+impl<I: Iterator<Item = f32>> ExtForFloatMax<f32> for I {
+    fn float_max(self) -> Option<f32> {
+        self.max_by(|a, b| a.total_cmp(b))
+    }
+}
+
+impl<I: Iterator<Item = f64>> ExtForFloatMax<f64> for I {
+    fn float_max(self) -> Option<f64> {
+        self.max_by(|a, b| a.total_cmp(b))
+    }
+}
