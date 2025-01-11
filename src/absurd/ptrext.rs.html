@@ -73,7 +73,7 @@
 </span><span class="kw">impl</span>&lt;T&gt; PtrExtForReclaimBox <span class="kw">for </span><span class="kw-2">*mut </span>T {
     <span class="kw">type </span>T = T;
     <span class="kw">unsafe fn </span>reclaim_box(<span class="self">self</span>) -&gt; Box&lt;<span class="self">Self</span>::T&gt; {
-        Box::from_raw(<span class="self">self</span>)
+        <span class="kw">unsafe </span>{ Box::from_raw(<span class="self">self</span>) }
     }
 }
 
