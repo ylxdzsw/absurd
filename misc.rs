@@ -95,8 +95,8 @@ macro_rules! impl_float_ext {
     };
 }
 
-impl_float_ext!(ExtForFloatMax, float_max, max_by, ExtForFloatMaxBy, float_max_by);
-impl_float_ext!(ExtForFloatMin, float_min, min_by, ExtForFloatMinBy, float_min_by);
+impl_float_ext!(ExtForFloatMax, float_max, max_by, ExtForFloatMaxByKey, float_max_by_key);
+impl_float_ext!(ExtForFloatMin, float_min, min_by, ExtForFloatMinByKey, float_min_by_key);
 
 #[cfg(test)]
 mod tests {
@@ -128,16 +128,16 @@ mod tests {
     }
 
     #[test]
-    fn float_max_by_f32() {
+    fn float_max_by_key_f32() {
         let values = vec![1, 3, 2];
-        let max = values.into_iter().float_max_by(|&x| x as f32);
+        let max = values.into_iter().float_max_by_key(|&x| x as f32);
         assert_eq!(max, Some(3));
     }
 
     #[test]
-    fn float_max_by_f64() {
+    fn float_max_by_key_f64() {
         let values = vec![1, 3, 2];
-        let max = values.into_iter().float_max_by(|&x| -x as f64);
+        let max = values.into_iter().float_max_by_key(|&x| -x as f64);
         assert_eq!(max, Some(1));
     }
 
@@ -156,16 +156,16 @@ mod tests {
     }
 
     #[test]
-    fn float_min_by_f32() {
+    fn float_min_by_key_f32() {
         let values = vec![1, 3, 2];
-        let min = values.into_iter().float_min_by(|&x| x as f32);
+        let min = values.into_iter().float_min_by_key(|&x| x as f32);
         assert_eq!(min, Some(1));
     }
 
     #[test]
-    fn float_min_by_f64() {
+    fn float_min_by_key_f64() {
         let values = vec![1, 3, 2];
-        let min = values.into_iter().float_min_by(|&x| -x as f64);
+        let min = values.into_iter().float_min_by_key(|&x| -x as f64);
         assert_eq!(min, Some(3));
     }
 }
