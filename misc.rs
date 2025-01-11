@@ -56,69 +56,47 @@ impl<T, E> ExtForResult for Result<T, E> {
     fn debug_assert_err(&self) { debug_assert!(self.is_err()) }
 }
 
-pub trait ExtForFloatMax<T>: Iterator<Item = T> {
-    fn float_max(self) -> Option<T>;
+macro_rules! impl_float_ext {
+    ($trait_name:ident, $method_name:ident, $cmp_method:ident) => {
+        pub trait $trait_name<T>: Iterator<Item = T> {
+            fn $method_name(self) -> Option<T>;
+        }
+
+        impl<I: Iterator<Item = f32>> $trait_name<f32> for I {
+            fn $method_name(self) -> Option<f32> {
+                self.$cmp_method(|a, b| a.total_cmp(b))
+            }
+        }
+
+        impl<I: Iterator<Item = f64>> $trait_name<f64> for I {
+            fn $method_name(self) -> Option<f64> {
+                self.$cmp_method(|a, b| a.total_cmp(b))
+            }
+        }
+    };
+    ($trait_name:ident, $method_name:ident, $cmp_method:ident, $by_trait_name:ident, $by_method_name:ident) => {
+        impl_float_ext!($trait_name, $method_name, $cmp_method);
+
+        pub trait $by_trait_name<T, N>: Iterator<Item = T> {
+            fn $by_method_name(self, f: impl Fn(&T) -> N) -> Option<T>;
+        }
+
+        impl<I: Iterator<Item = T>, T> $by_trait_name<T, f32> for I {
+            fn $by_method_name(self, f: impl Fn(&T) -> f32) -> Option<T> {
+                self.$cmp_method(|a, b| f(a).total_cmp(&f(b)))
+            }
+        }
+
+        impl<I: Iterator<Item = T>, T> $by_trait_name<T, f64> for I {
+            fn $by_method_name(self, f: impl Fn(&T) -> f64) -> Option<T> {
+                self.$cmp_method(|a, b| f(a).total_cmp(&f(b)))
+            }
+        }
+    };
 }
 
-impl<I: Iterator<Item = f32>> ExtForFloatMax<f32> for I {
-    fn float_max(self) -> Option<f32> {
-        self.max_by(|a, b| a.total_cmp(b))
-    }
-}
-
-impl<I: Iterator<Item = f64>> ExtForFloatMax<f64> for I {
-    fn float_max(self) -> Option<f64> {
-        self.max_by(|a, b| a.total_cmp(b))
-    }
-}
-
-pub trait ExtForFloatMin<T>: Iterator<Item = T> {
-    fn float_min(self) -> Option<T>;
-}
-
-impl<I: Iterator<Item = f32>> ExtForFloatMin<f32> for I {
-    fn float_min(self) -> Option<f32> {
-        self.min_by(|a, b| a.total_cmp(b))
-    }
-}
-
-impl<I: Iterator<Item = f64>> ExtForFloatMin<f64> for I {
-    fn float_min(self) -> Option<f64> {
-        self.min_by(|a, b| a.total_cmp(b))
-    }
-}
-
-pub trait ExtForFloatMaxBy<T, N>: Iterator<Item = T> {
-    fn float_max_by(self, f: impl Fn(&T) -> N) -> Option<T>;
-}
-
-impl<I: Iterator<Item = T>, T> ExtForFloatMaxBy<T, f32> for I {
-    fn float_max_by(self, f: impl Fn(&T) -> f32) -> Option<T> {
-        self.max_by(|a, b| f(a).total_cmp(&f(b)))
-    }
-}
-
-impl<I: Iterator<Item = T>, T> ExtForFloatMaxBy<T, f64> for I {
-    fn float_max_by(self, f: impl Fn(&T) -> f64) -> Option<T> {
-        self.max_by(|a, b| f(a).total_cmp(&f(b)))
-    }
-}
-
-pub trait ExtForFloatMinBy<T, N>: Iterator<Item = T> {
-    fn float_min_by(self, f: impl Fn(&T) -> N) -> Option<T>;
-}
-
-impl<I: Iterator<Item = T>, T> ExtForFloatMinBy<T, f32> for I {
-    fn float_min_by(self, f: impl Fn(&T) -> f32) -> Option<T> {
-        self.min_by(|a, b| f(a).total_cmp(&f(b)))
-    }
-}
-
-impl<I: Iterator<Item = T>, T> ExtForFloatMinBy<T, f64> for I {
-    fn float_min_by(self, f: impl Fn(&T) -> f64) -> Option<T> {
-        self.min_by(|a, b| f(a).total_cmp(&f(b)))
-    }
-}
+impl_float_ext!(ExtForFloatMax, float_max, max_by, ExtForFloatMaxBy, float_max_by);
+impl_float_ext!(ExtForFloatMin, float_min, min_by, ExtForFloatMinBy, float_min_by);
 
 #[cfg(test)]
 mod tests {
