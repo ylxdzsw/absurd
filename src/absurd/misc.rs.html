@@ -266,8 +266,8 @@
     };
 }
 
-<span class="macro">impl_float_ext!</span>(ExtForFloatMax, float_max, max_by, ExtForFloatMaxBy, float_max_by);
-<span class="macro">impl_float_ext!</span>(ExtForFloatMin, float_min, min_by, ExtForFloatMinBy, float_min_by);
+<span class="macro">impl_float_ext!</span>(ExtForFloatMax, float_max, max_by, ExtForFloatMaxByKey, float_max_by_key);
+<span class="macro">impl_float_ext!</span>(ExtForFloatMin, float_min, min_by, ExtForFloatMinByKey, float_min_by_key);
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
@@ -299,16 +299,16 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>float_max_by_f32() {
+    </span><span class="kw">fn </span>float_max_by_key_f32() {
         <span class="kw">let </span>values = <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>];
-        <span class="kw">let </span>max = values.into_iter().float_max_by(|<span class="kw-2">&amp;</span>x| x <span class="kw">as </span>f32);
+        <span class="kw">let </span>max = values.into_iter().float_max_by_key(|<span class="kw-2">&amp;</span>x| x <span class="kw">as </span>f32);
         <span class="macro">assert_eq!</span>(max, <span class="prelude-val">Some</span>(<span class="number">3</span>));
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>float_max_by_f64() {
+    </span><span class="kw">fn </span>float_max_by_key_f64() {
         <span class="kw">let </span>values = <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>];
-        <span class="kw">let </span>max = values.into_iter().float_max_by(|<span class="kw-2">&amp;</span>x| -x <span class="kw">as </span>f64);
+        <span class="kw">let </span>max = values.into_iter().float_max_by_key(|<span class="kw-2">&amp;</span>x| -x <span class="kw">as </span>f64);
         <span class="macro">assert_eq!</span>(max, <span class="prelude-val">Some</span>(<span class="number">1</span>));
     }
 
@@ -327,16 +327,16 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>float_min_by_f32() {
+    </span><span class="kw">fn </span>float_min_by_key_f32() {
         <span class="kw">let </span>values = <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>];
-        <span class="kw">let </span>min = values.into_iter().float_min_by(|<span class="kw-2">&amp;</span>x| x <span class="kw">as </span>f32);
+        <span class="kw">let </span>min = values.into_iter().float_min_by_key(|<span class="kw-2">&amp;</span>x| x <span class="kw">as </span>f32);
         <span class="macro">assert_eq!</span>(min, <span class="prelude-val">Some</span>(<span class="number">1</span>));
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>float_min_by_f64() {
+    </span><span class="kw">fn </span>float_min_by_key_f64() {
         <span class="kw">let </span>values = <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>];
-        <span class="kw">let </span>min = values.into_iter().float_min_by(|<span class="kw-2">&amp;</span>x| -x <span class="kw">as </span>f64);
+        <span class="kw">let </span>min = values.into_iter().float_min_by_key(|<span class="kw-2">&amp;</span>x| -x <span class="kw">as </span>f64);
         <span class="macro">assert_eq!</span>(min, <span class="prelude-val">Some</span>(<span class="number">3</span>));
     }
 }
