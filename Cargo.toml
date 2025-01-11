@@ -1,8 +1,8 @@
 [package]
 name = "absurd"
-version = "0.15.2"
+version = "0.15.3"
 authors = ["ylxdzsw <ylxdzsw@gmail.com>"]
-edition = "2021"
+edition = "2024"
 
 [lib]
 path = "absurd.rs"

@@ -70,15 +70,15 @@ impl<const N: usize, const C: usize> Arena<N, C> {
 
     unsafe fn alloc_layout(&self, layout: core::alloc::Layout) -> *mut u8 {
         loop {
-            let inner = &mut *self.inner.get();
+            let inner = unsafe { &mut *self.inner.get() };
             let align_offset = inner.ptr.align_offset(layout.align());
             if align_offset + layout.size() > inner.capacity {
                 self.grow();
                 continue
             }
 
-            let ptr = inner.ptr.add(align_offset);
-            inner.ptr = inner.ptr.add(align_offset + layout.size());
+            let ptr = unsafe { inner.ptr.add(align_offset) };
+            inner.ptr = unsafe { inner.ptr.add(align_offset + layout.size()) };
             inner.capacity -= align_offset + layout.size();
             return ptr
         }

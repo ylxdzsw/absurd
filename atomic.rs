@@ -25,7 +25,7 @@ impl<T, P: PtrAlike<T>> AtomicPtrAlike<T, P> {
 
     /// Safety: relaxed ordering may cause invalid pointers
     pub unsafe fn swap_with_order(&self, val: P, order: Ordering) -> P {
-        P::from_ptr(self.ptr.swap(val.into_ptr(), order))
+        unsafe { P::from_ptr(self.ptr.swap(val.into_ptr(), order)) }
     }
 
     pub fn swap(&self, val: P) -> P {
@@ -38,7 +38,7 @@ impl<T, P: PtrAlike<T>> AtomicPtrAlike<T, P> {
 
     /// Safety: relaxed ordering may cause invalid pointers
     pub unsafe fn store_with_order(&self, val: P, order: Ordering) {
-        self.swap_with_order(val, order); // use swap to drop the old value
+        unsafe { self.swap_with_order(val, order); } // use swap to drop the old value
     }
 
     pub fn store(&self, val: P) {
@@ -66,8 +66,8 @@ impl<T, P: PtrAlike<T> + Copy> AtomicPtrAlike<T, P> {
     /// Safety: relaxed ordering may cause invalid pointers
     pub unsafe fn compare_exchange_with_order(&self, current: P, new: P, success: Ordering, failure: Ordering) -> Result<P, P> {
         self.ptr.compare_exchange(current.into_ptr(), new.into_ptr(), success, failure)
-            .map(|x| P::from_ptr(x))
-            .map_err(|x| P::from_ptr(x))
+            .map(|x| unsafe { P::from_ptr(x) })
+            .map_err(|x| unsafe { P::from_ptr(x) })
     }
 
     /// Compare the value and swap if it is equal to the current value
@@ -82,8 +82,8 @@ impl<T, P: PtrAlike<T> + Copy> AtomicPtrAlike<T, P> {
     /// Safety: relaxed ordering may cause invalid pointers
     pub unsafe fn compare_exchange_weak_with_order(&self, current: P, new: P, success: Ordering, failure: Ordering) -> Result<P, P> {
         self.ptr.compare_exchange_weak(current.into_ptr(), new.into_ptr(), success, failure)
-            .map(|x| P::from_ptr(x))
-            .map_err(|x| P::from_ptr(x))
+            .map(|x| unsafe { P::from_ptr(x) })
+            .map_err(|x| unsafe { P::from_ptr(x) })
     }
 
     /// Compare the value and swap if it is equal to the current value, but may fail spuriously
@@ -97,7 +97,7 @@ impl<T, P: PtrAlike<T> + Copy> AtomicPtrAlike<T, P> {
 
     /// Safety: relaxed ordering may cause invalid pointers
     pub unsafe fn load_with_order(&self, order: Ordering) -> P {
-        P::from_ptr(self.ptr.load(order))
+        unsafe { P::from_ptr(self.ptr.load(order)) }
     }
 
     pub fn load(&self) -> P {
@@ -118,7 +118,7 @@ impl<T, S> AtomicPtrAlike<T, Option<S>> where Option<S>: PtrAlike<T> {
 
     /// Safety: relaxed ordering may cause invalid pointers
     pub unsafe fn take_with_order(&self, order: Ordering) -> Option<S> {
-        self.swap_with_order(None, order)
+        unsafe { self.swap_with_order(None, order) }
     }
 
     pub fn take(&self) -> Option<S> {
@@ -134,7 +134,7 @@ impl<T, S> AtomicPtrAlike<T, Option<S>> where Option<S>: PtrAlike<T> {
         let val: *mut T = Some(val).into_ptr(); // make a copy in case we need to return it
         self.ptr.compare_exchange(None.into_ptr(), val, success, failure)
             .map(|_| ())
-            .map_err(|_| <Option<S>>::from_ptr(val).unwrap())
+            .map_err(|_| unsafe{ <Option<S>>::from_ptr(val).unwrap() })
     }
 
     pub fn try_insert(&self, val: S) -> Result<(), S> {
@@ -155,7 +155,7 @@ impl<T, S> Default for AtomicPtrAlike<T, Option<S>> where Option<S>: PtrAlike<T>
 #[cfg(feature = "std")]
 impl<T> PtrAlike<T> for Box<T> {
     unsafe fn from_ptr(ptr: *mut T) -> Self {
-        Box::from_raw(ptr)
+        unsafe { Box::from_raw(ptr) }
     }
 
     fn into_ptr(self) -> *mut T {
@@ -168,7 +168,7 @@ impl<T, S: PtrAlike<T>> PtrAlike<T> for Option<S> {
         if ptr.is_null() {
             None
         } else {
-            Some(S::from_ptr(ptr))
+            Some(unsafe { S::from_ptr(ptr) })
         }
     }
 
@@ -182,7 +182,7 @@ impl<T, S: PtrAlike<T>> PtrAlike<T> for Option<S> {
 
 impl<T> PtrAlike<T> for &'_ T {
     unsafe fn from_ptr(ptr: *mut T) -> Self {
-        &*ptr
+        unsafe { &*ptr }
     }
 
     fn into_ptr(self) -> *mut T {
@@ -192,7 +192,7 @@ impl<T> PtrAlike<T> for &'_ T {
 
 impl<T> PtrAlike<T> for &'_ mut T {
     unsafe fn from_ptr(ptr: *mut T) -> Self {
-        &mut *ptr
+        unsafe { &mut *ptr }
     }
 
     fn into_ptr(self) -> *mut T {

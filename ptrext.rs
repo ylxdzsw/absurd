@@ -21,7 +21,7 @@ pub trait PtrExtForReclaimBox {
 impl<T> PtrExtForReclaimBox for *mut T {
     type T = T;
     unsafe fn reclaim_box(self) -> Box<Self::T> {
-        Box::from_raw(self)
+        unsafe { Box::from_raw(self) }
     }
 }
 
