@@ -45,6 +45,7 @@ macro_rules! new_index_type {
 
 #[cfg(test)]
 mod tests {
+
     #[test]
     fn test_index_type_1() {
         new_index_type!(Test(u16));
@@ -59,5 +60,23 @@ mod tests {
         assert_eq!(x, Test(2));
 
         assert_eq!(x+1, Test(3));
+    }
+
+    #[test]
+    fn test_index_type_atomic() {
+        use core::sync::atomic::*;
+        use crate::atomic::*;
+        new_index_type!(Test(i32));
+
+        let x: Atomic<_> = Atomic::new(Test(7));
+        assert_eq!(x.load(Ordering::Relaxed), Test(7));
+        x.store(Test(8), Ordering::Relaxed);
+        assert_eq!(x.swap(Test(9), Ordering::Relaxed), Test(8));
+        assert_eq!(x.compare_exchange(Test(9), Test(10), Ordering::Relaxed, Ordering::Relaxed), Ok(Test(9)));
+        assert_eq!(x.compare_exchange(Test(9), Test(11), Ordering::Relaxed, Ordering::Relaxed), Err(Test(10)));
+        assert_eq!(x.fetch_add(1, Ordering::Relaxed), Test(10));
+        assert_eq!(x.fetch_sub(1, Ordering::Relaxed), Test(11));
+        assert_eq!(x.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |x| Some(x+5)), Ok(Test(10)));
+        assert_eq!(x.into_inner(), Test(15));
     }
 }

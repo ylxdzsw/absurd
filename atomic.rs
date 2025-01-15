@@ -1,6 +1,5 @@
 use core::mem::ManuallyDrop;
-use core::sync::atomic::AtomicPtr;
-use core::sync::atomic::Ordering;
+use core::sync::atomic::*;
 use core::marker::PhantomData;
 
 pub trait PtrAlike<T> {
@@ -210,6 +209,154 @@ pub type AtomicRef<'a, T> = AtomicPtrAlike<T, &'a T>;
 pub type AtomicOptionRef<'a, T> = AtomicPtrAlike<T, Option<&'a T>>;
 pub type AtomicMutRef<'a, T> = AtomicPtrAlike<T, &'a mut T>;
 pub type AtomicOptionMutRef<'a, T> = AtomicPtrAlike<T, Option<&'a mut T>>;
+
+pub trait AtomicPrimitive {
+    type P;
+
+    fn new(val: Self::P) -> Self;
+    fn load(&self, order: Ordering) -> Self::P;
+    fn store(&self, val: Self::P, order: Ordering);
+    fn swap(&self, val: Self::P, order: Ordering) -> Self::P;
+    fn fetch_add(&self, val: Self::P, order: Ordering) -> Self::P;
+    fn fetch_sub(&self, val: Self::P, order: Ordering) -> Self::P;
+    fn fetch_max(&self, val: Self::P, order: Ordering) -> Self::P;
+    fn fetch_min(&self, val: Self::P, order: Ordering) -> Self::P;
+    fn fetch_update(&self, set_order: Ordering, fetch_order: Ordering, f: impl FnMut(Self::P) -> Option<Self::P>) -> Result<Self::P, Self::P>;
+    fn compare_exchange(&self, current: Self::P, new: Self::P, success: Ordering, failure: Ordering) -> Result<Self::P, Self::P>;
+    fn compare_exchange_weak(&self, current: Self::P, new: Self::P, success: Ordering, failure: Ordering) -> Result<Self::P, Self::P>;
+    fn into_inner(self) -> Self::P;
+}
+
+macro_rules! impl_atomic_primitive {
+    ($atomic_type:ty, $primitive_type:ty) => {
+        impl AtomicPrimitive for $atomic_type {
+            type P = $primitive_type;
+
+            fn new(val: Self::P) -> Self {
+                <$atomic_type>::new(val)
+            }
+
+            fn load(&self, order: Ordering) -> Self::P {
+                <$atomic_type>::load(self, order)
+            }
+
+            fn store(&self, val: Self::P, order: Ordering) {
+                <$atomic_type>::store(self, val, order)
+            }
+
+            fn swap(&self, val: Self::P, order: Ordering) -> Self::P {
+                <$atomic_type>::swap(self, val, order)
+            }
+
+            fn fetch_add(&self, val: Self::P, order: Ordering) -> Self::P {
+                <$atomic_type>::fetch_add(self, val, order)
+            }
+
+            fn fetch_sub(&self, val: Self::P, order: Ordering) -> Self::P {
+                <$atomic_type>::fetch_sub(self, val, order)
+            }
+
+            fn fetch_max(&self, val: Self::P, order: Ordering) -> Self::P {
+                <$atomic_type>::fetch_max(self, val, order)
+            }
+
+            fn fetch_min(&self, val: Self::P, order: Ordering) -> Self::P {
+                <$atomic_type>::fetch_min(self, val, order)
+            }
+
+            fn fetch_update(&self, set_order: Ordering, fetch_order: Ordering, f: impl FnMut(Self::P) -> Option<Self::P>) -> Result<Self::P, Self::P> {
+                <$atomic_type>::fetch_update(self, set_order, fetch_order, f)
+            }
+
+            fn compare_exchange(&self, current: Self::P, new: Self::P, success: Ordering, failure: Ordering) -> Result<Self::P, Self::P> {
+                <$atomic_type>::compare_exchange(self, current, new, success, failure)
+            }
+
+            fn compare_exchange_weak(&self, current: Self::P, new: Self::P, success: Ordering, failure: Ordering) -> Result<Self::P, Self::P> {
+                <$atomic_type>::compare_exchange_weak(self, current, new, success, failure)
+            }
+
+            fn into_inner(self) -> Self::P {
+                <$atomic_type>::into_inner(self)
+            }
+        }
+    };
+}
+
+impl_atomic_primitive!(AtomicI8, i8);
+impl_atomic_primitive!(AtomicU8, u8);
+impl_atomic_primitive!(AtomicI16, i16);
+impl_atomic_primitive!(AtomicU16, u16);
+impl_atomic_primitive!(AtomicI32, i32);
+impl_atomic_primitive!(AtomicU32, u32);
+impl_atomic_primitive!(AtomicI64, i64);
+impl_atomic_primitive!(AtomicU64, u64);
+impl_atomic_primitive!(AtomicIsize, isize);
+impl_atomic_primitive!(AtomicUsize, usize);
+
+pub struct Atomic<T, S = AtomicUsize> where
+    S: AtomicPrimitive,
+    T: From<S::P> + Into<S::P>
+{
+    storage: S,
+    phantom: core::marker::PhantomData<T>,
+}
+
+impl<T, S> Atomic<T, S> where
+    S: AtomicPrimitive,
+    T: From<S::P> + Into<S::P>
+{
+    pub fn new(val: T) -> Self {
+        Self {
+            storage: S::new(val.into()),
+            phantom: core::marker::PhantomData,
+        }
+    }
+
+    pub fn load(&self, order: Ordering) -> T {
+        self.storage.load(order).into()
+    }
+
+    pub fn store(&self, val: T, order: Ordering) {
+        self.storage.store(val.into(), order);
+    }
+
+    pub fn swap(&self, val: T, order: Ordering) -> T {
+        self.storage.swap(val.into(), order).into()
+    }
+
+    pub fn fetch_add(&self, val: S::P, order: Ordering) -> T {
+        self.storage.fetch_add(val, order).into()
+    }
+
+    pub fn fetch_sub(&self, val: S::P, order: Ordering) -> T {
+        self.storage.fetch_sub(val, order).into()
+    }
+
+    pub fn fetch_max(&self, val: T, order: Ordering) -> T {
+        self.storage.fetch_max(val.into(), order).into()
+    }
+
+    pub fn fetch_min(&self, val: T, order: Ordering) -> T {
+        self.storage.fetch_min(val.into(), order).into()
+    }
+
+    pub fn fetch_update(&self, set_order: Ordering, fetch_order: Ordering, mut f: impl FnMut(T) -> Option<T>) -> Result<T, T> {
+        self.storage.fetch_update(set_order, fetch_order, |x| f(x.into()).map(Into::into)).map(Into::into).map_err(Into::into)
+    }
+
+    pub fn compare_exchange(&self, current: T, new: T, success: Ordering, failure: Ordering) -> Result<T, T> {
+        self.storage.compare_exchange(current.into(), new.into(), success, failure).map(Into::into).map_err(Into::into)
+    }
+
+    pub fn compare_exchange_weak(&self, current: T, new: T, success: Ordering, failure: Ordering) -> Result<T, T> {
+        self.storage.compare_exchange_weak(current.into(), new.into(), success, failure).map(Into::into).map_err(Into::into)
+    }
+
+    pub fn into_inner(self) -> T {
+        self.storage.into_inner().into()
+    }
+}
 
 #[cfg(test)]
 mod tests {

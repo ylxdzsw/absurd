@@ -54,20 +54,24 @@ pub trait Arithmetic:
     PartialEq
 {}
 
-impl Arithmetic for u8 {}
-impl Arithmetic for i8 {}
-impl Arithmetic for u16 {}
-impl Arithmetic for i16 {}
-impl Arithmetic for u32 {}
-impl Arithmetic for i32 {}
-impl Arithmetic for u64 {}
-impl Arithmetic for i64 {}
-impl Arithmetic for u128 {}
-impl Arithmetic for i128 {}
-impl Arithmetic for usize {}
-impl Arithmetic for isize {}
-impl Arithmetic for f32 {}
-impl Arithmetic for f64 {}
+impl<T> Arithmetic for T where T:
+    Sized +
+    Debug +
+    One +
+    Zero +
+    Add<Output=Self> +
+    AddAssign +
+    Sub<Output=Self> +
+    SubAssign +
+    Mul<Output=Self> +
+    MulAssign +
+    Div<Output=Self> +
+    DivAssign +
+    Rem<Output=Self> +
+    RemAssign +
+    PartialOrd +
+    PartialEq
+{}
 
 pub trait BitOps:
     Sized +
@@ -84,18 +88,20 @@ pub trait BitOps:
     ShrAssign
 {}
 
-impl BitOps for u8 {}
-impl BitOps for i8 {}
-impl BitOps for u16 {}
-impl BitOps for i16 {}
-impl BitOps for u32 {}
-impl BitOps for i32 {}
-impl BitOps for u64 {}
-impl BitOps for i64 {}
-impl BitOps for u128 {}
-impl BitOps for i128 {}
-impl BitOps for usize {}
-impl BitOps for isize {}
+impl<T> BitOps for T where T:
+    Sized +
+    BitAnd<Output=Self> +
+    BitAndAssign +
+    BitOr<Output=Self> +
+    BitOrAssign +
+    BitXor<Output=Self> +
+    BitXorAssign +
+    Not<Output=Self> +
+    Shl<usize, Output=Self> +
+    ShlAssign +
+    Shr<usize, Output=Self> +
+    ShrAssign
+{}
 
 pub trait Integer:
     Arithmetic +
@@ -182,7 +188,6 @@ impl Integer for usize {
     fn div_floor(self, rhs: Self) -> Self { self / rhs }
 }
 impl Integer for isize {}
-
 
 mod tests {
     #[test]
