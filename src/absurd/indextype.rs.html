@@ -80,9 +80,47 @@
 <a href="#79" id="79">79</a>
 <a href="#80" id="80">80</a>
 <a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a></pre></div><pre class="rust"><code><span class="attr">#[macro_export]
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a></pre></div><pre class="rust"><code><span class="attr">#[macro_export]
+</span><span class="macro">macro_rules!</span> convert_usize {
+    (<span class="macro-nonterminal">$type_name</span>: ident, usize) =&gt; {};
+    (<span class="macro-nonterminal">$type_name</span>: ident, <span class="macro-nonterminal">$base_type</span>: ident) =&gt; {
+        <span class="kw">impl </span>From&lt;usize&gt; <span class="kw">for </span><span class="macro-nonterminal">$type_name </span>{
+            <span class="kw">fn </span>from(x: usize) -&gt; <span class="macro-nonterminal">$type_name </span>{
+                <span class="macro-nonterminal">$type_name</span>(x <span class="kw">as </span><span class="macro-nonterminal">$base_type</span>)
+            }
+        }
+
+        <span class="kw">impl </span>From&lt;<span class="macro-nonterminal">$type_name</span>&gt; <span class="kw">for </span>usize {
+            <span class="kw">fn </span>from(x: <span class="macro-nonterminal">$type_name</span>) -&gt; usize {
+                x.<span class="number">0 </span><span class="kw">as </span>usize
+            }
+        }
+    }
+}
+
+<span class="attr">#[macro_export]
 </span><span class="macro">macro_rules!</span> new_index_type {
-    (<span class="macro-nonterminal">$visibility</span>: vis <span class="macro-nonterminal">$type_name</span>: ident (<span class="macro-nonterminal">$base_type</span>: ty) $(, $(<span class="macro-nonterminal">$traits</span>: ident)<span class="kw-2">*</span>)<span class="question-mark">?</span>) =&gt; {
+    (<span class="macro-nonterminal">$visibility</span>: vis <span class="macro-nonterminal">$type_name</span>: ident (<span class="macro-nonterminal">$base_type</span>: ident) $(, $(<span class="macro-nonterminal">$traits</span>: ident)<span class="kw-2">*</span>)<span class="question-mark">?</span>) =&gt; {
         <span class="attr">#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash $($(, <span class="macro-nonterminal">$traits</span>)<span class="kw-2">*</span>)<span class="question-mark">?</span>)]
         #[repr(transparent)]
         </span><span class="macro-nonterminal">$visibility </span><span class="kw">struct </span><span class="macro-nonterminal">$type_name</span>(<span class="kw">pub </span><span class="macro-nonterminal">$base_type</span>);
@@ -101,17 +139,19 @@
             }
         }
 
-        <span class="kw">impl </span>From&lt;usize&gt; <span class="kw">for </span><span class="macro-nonterminal">$type_name </span>{
-            <span class="kw">fn </span>from(x: usize) -&gt; <span class="macro-nonterminal">$type_name </span>{
+        <span class="kw">impl </span>From&lt;<span class="macro-nonterminal">$base_type</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$type_name </span>{
+            <span class="kw">fn </span>from(x: <span class="macro-nonterminal">$base_type</span>) -&gt; <span class="macro-nonterminal">$type_name </span>{
                 <span class="macro-nonterminal">$type_name</span>(x <span class="kw">as </span><span class="macro-nonterminal">$base_type</span>)
             }
         }
 
-        <span class="kw">impl </span>From&lt;<span class="macro-nonterminal">$type_name</span>&gt; <span class="kw">for </span>usize {
-            <span class="kw">fn </span>from(x: <span class="macro-nonterminal">$type_name</span>) -&gt; usize {
-                x.<span class="number">0 </span><span class="kw">as </span>usize
-            }
+        <span class="kw">impl </span>From&lt;<span class="macro-nonterminal">$type_name</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$base_type </span>{
+            <span class="kw">fn </span>from(x: <span class="macro-nonterminal">$type_name</span>) -&gt; <span class="macro-nonterminal">$base_type </span>{
+                x.<span class="number">0 </span><span class="kw">as </span><span class="macro-nonterminal">$base_type
+            </span>}
         }
+
+        <span class="macro">crate::convert_usize!</span>(<span class="macro-nonterminal">$type_name</span>, <span class="macro-nonterminal">$base_type</span>);
 
         <span class="kw">impl </span>core::fmt::Display <span class="kw">for </span><span class="macro-nonterminal">$type_name </span>{
             <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
@@ -133,7 +173,7 @@
         <span class="macro">new_index_type!</span>(Test(u16));
         <span class="macro">new_index_type!</span>(<span class="kw">pub</span>(<span class="kw">crate</span>) TestVisibility);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>x: Test = <span class="number">0</span>.into();
+        <span class="kw">let </span><span class="kw-2">mut </span>x: Test = <span class="number">0usize</span>.into();
 
         x += <span class="number">1</span>;
         <span class="macro">assert_eq!</span>(x, Test(<span class="number">1</span>));
