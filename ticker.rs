@@ -51,3 +51,35 @@ impl Drop for Ticker {
         }
     }
 }
+
+
+#[derive(Default)]
+pub struct RunningAverage {
+    count: usize,
+    mean: f64,
+    m2: f64
+}
+
+impl RunningAverage {
+    pub fn new() -> Self {
+        Self { count: 0, mean: 0., m2: 0. }
+    }
+
+    pub fn observe(&mut self, x: f64) {
+        self.count += 1;
+        let delta = x - self.mean;
+        self.mean += delta / self.count as f64;
+        let delta2 = x - self.mean;
+        self.m2 += delta * delta2;
+    }
+
+    /// return mean and variance
+    pub fn get(&self) -> (f64, f64) {
+        (self.mean, self.m2 / self.count as f64)
+    }
+
+    /// return mean and variance, reset the statistic
+    pub fn take(&mut self) -> (f64, f64) {
+        core::mem::take(self).get()
+    }
+}

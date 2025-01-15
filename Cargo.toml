@@ -1,6 +1,6 @@
 [package]
 name = "absurd"
-version = "0.15.3"
+version = "0.16.0"
 authors = ["ylxdzsw <ylxdzsw@gmail.com>"]
 edition = "2024"
 
