@@ -3,9 +3,6 @@
 mod arena;
 pub use arena::*;
 
-mod atomic;
-pub use atomic::*;
-
 mod bitset;
 pub use bitset::*;
 
