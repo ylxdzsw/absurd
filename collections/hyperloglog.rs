@@ -3,6 +3,7 @@ use core::hash::{BuildHasher, Hash, Hasher};
 // we use 30 bits of the hash output
 // 14 bits are used for indexing 16384 registers, providing 1.04/sqrt(16384) = 0.8125% standard errors
 // 15 bits are used for estimate the numbers in a 4 bit register
+// todo: 15 bits are a bit insufficient, but more bits makes packing more challenging. Need a bitvec helper.
 // todo: making them configurable after generic const expr stablized?
 
 pub struct HyperLogLog<H: BuildHasher> {
