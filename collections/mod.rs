@@ -2,6 +2,9 @@ use core::{hash::{Hash, BuildHasher}, mem::{MaybeUninit, ManuallyDrop}, ops::{De
 #[cfg(feature = "std")]
 use std::collections::{HashMap, BTreeMap};
 
+mod hyperloglog;
+pub use hyperloglog::*;
+
 pub trait Map<K, V>: Default + FromIterator<(K, V)> + IntoIterator<Item = (K, V)> {
     fn get(&self, item: &K) -> Option<&V>;
     fn get_mut(&mut self, item: &K) -> Option<&mut V>;

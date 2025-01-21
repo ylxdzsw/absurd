@@ -115,56 +115,56 @@ mod tests {
 
     #[test]
     fn float_max_f32() {
-        let values = vec![1.0f32, 3.0, 2.0];
+        let values = [1.0f32, 3.0, 2.0];
         let max = values.into_iter().float_max();
         assert_eq!(max, Some(3.0));
     }
 
     #[test]
     fn float_max_f64() {
-        let values = vec![1.0f64, 3.0, 2.0];
+        let values = [1.0f64, 3.0, 2.0];
         let max = values.into_iter().float_max();
         assert_eq!(max, Some(3.0));
     }
 
     #[test]
     fn float_max_by_key_f32() {
-        let values = vec![1, 3, 2];
+        let values = [1, 3, 2];
         let max = values.into_iter().float_max_by_key(|&x| x as f32);
         assert_eq!(max, Some(3));
     }
 
     #[test]
     fn float_max_by_key_f64() {
-        let values = vec![1, 3, 2];
+        let values = [1, 3, 2];
         let max = values.into_iter().float_max_by_key(|&x| -x as f64);
         assert_eq!(max, Some(1));
     }
 
     #[test]
     fn float_min_f32() {
-        let values = vec![1.0f32, 3.0, 2.0];
+        let values = [1.0f32, 3.0, 2.0];
         let min = values.into_iter().float_min();
         assert_eq!(min, Some(1.0));
     }
 
     #[test]
     fn float_min_f64() {
-        let values = vec![1.0f64, 3.0, 2.0];
+        let values = [1.0f64, 3.0, 2.0];
         let min = values.into_iter().float_min();
         assert_eq!(min, Some(1.0));
     }
 
     #[test]
     fn float_min_by_key_f32() {
-        let values = vec![1, 3, 2];
+        let values = [1, 3, 2];
         let min = values.into_iter().float_min_by_key(|&x| x as f32);
         assert_eq!(min, Some(1));
     }
 
     #[test]
     fn float_min_by_key_f64() {
-        let values = vec![1, 3, 2];
+        let values = [1, 3, 2];
         let min = values.into_iter().float_min_by_key(|&x| -x as f64);
         assert_eq!(min, Some(3));
     }
