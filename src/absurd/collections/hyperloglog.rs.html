@@ -100,11 +100,13 @@
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a></pre></div><pre class="rust"><code><span class="kw">use </span>core::hash::{BuildHasher, Hash, Hasher};
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a></pre></div><pre class="rust"><code><span class="kw">use </span>core::hash::{BuildHasher, Hash, Hasher};
 
 <span class="comment">// we use 30 bits of the hash output
 // 14 bits are used for indexing 16384 registers, providing 1.04/sqrt(16384) = 0.8125% standard errors
 // 15 bits are used for estimate the numbers in a 4 bit register
+// todo: 15 bits are a bit insufficient, but more bits makes packing more challenging. Need a bitvec helper.
 // todo: making them configurable after generic const expr stablized?
 
 </span><span class="kw">pub struct </span>HyperLogLog&lt;H: BuildHasher&gt; {
