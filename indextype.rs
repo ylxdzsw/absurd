@@ -50,11 +50,11 @@ macro_rules! new_index_type {
             }
         }
 
-        crate::convert_usize!($type_name, $base_type);
+        $crate::convert_usize!($type_name, $base_type);
 
         impl core::fmt::Display for $type_name {
             fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-                self.0.fmt(f)
+                core::fmt::Display::fmt(&self.0, f)
             }
         }
     };
